@@ -11,7 +11,7 @@
                 {% endfor %}
             </ul>
         </div>
-        <div class="bg-white bg-opacity-60 rounded-lg p-4 text-indigo-900 shadow-md animate-fade-in-up">
+        <div class="bg-white bg-opacity-60 rounded-lg p-4 text-indigo-900 shadow-md animate-fade-in-up mb-6">
             <h3 class="font-bold text-lg mb-2 text-purple-700">Tugas Khusus</h3>
             <form method="post" class="flex gap-2 mb-4">
                 {% csrf_token %}
@@ -38,13 +38,11 @@
                 {% endfor %}
             </ul>
         </div>
-    </div>
-</div>
-<div class="w-full flex justify-start mt-8">
-    <a href="{% url 'panitia:petugas_upacara' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded shadow hover:bg-fuchsia-600 transition text-sm font-semibold">
-        <i class="fas fa-arrow-left mr-2"></i> Kembali
-    </a>
-</div>
+        <div class="w-full flex justify-start">
+            <a href="{% url 'panitia:petugas_upacara' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded shadow hover:bg-fuchsia-600 transition text-sm font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

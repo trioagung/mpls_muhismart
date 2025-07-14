@@ -156,8 +156,16 @@ def download_absensi_pdf(request):
 @login_required
 def daftar_kelompok(request):
     from .models import Kelompok, Anggota
+    
+    # Tambahkan pengecekan akses
+    bisa_lihat, bisa_edit = get_akses(request.user, 'Daftar Kelompok')
+    if not bisa_lihat:
+        return render(request, 'panitia/no_access.html', {'menu': 'Daftar Kelompok'})
+    if request.method == 'POST' and not bisa_edit:
+        return render(request, 'panitia/no_access.html', {'menu': 'Daftar Kelompok'})
+    
     kelompok_list = Kelompok.objects.all()
-    if request.method == 'POST':
+    if request.method == 'POST' and bisa_edit:
         if 'hapus_kelompok' in request.POST:
             nama_kelompok = request.POST.get('hapus_kelompok')
             Kelompok.objects.filter(nama=nama_kelompok).delete()
@@ -203,19 +211,20 @@ def daftar_kelompok(request):
                 anggota_list = []
                 koordinator_list = []
             if 'simpan_edit' in request.POST:
-                kelompok.nama = request.POST.get('nama_kelompok', kelompok.nama)
-                kelompok.ketua = request.POST.get('ketua', kelompok.ketua)
-                kelompok.save()
-                Anggota.objects.filter(kelompok=kelompok).delete()
-                koordinator = request.POST.get('koordinator', '').strip()
-                anggota = request.POST.get('anggota', '').strip()
-                if koordinator:
-                    Anggota.objects.create(nama=koordinator, kelompok=kelompok, is_ketua=True)
-                if anggota:
-                    for a in anggota.splitlines():
-                        a = a.strip()
-                        if a:
-                            Anggota.objects.create(nama=a, kelompok=kelompok)
+                if kelompok:  # Pastikan kelompok tidak None
+                    kelompok.nama = request.POST.get('nama_kelompok', kelompok.nama)
+                    kelompok.ketua = request.POST.get('ketua', kelompok.ketua)
+                    kelompok.save()
+                    Anggota.objects.filter(kelompok=kelompok).delete()
+                    koordinator = request.POST.get('koordinator', '').strip()
+                    anggota = request.POST.get('anggota', '').strip()
+                    if koordinator:
+                        Anggota.objects.create(nama=koordinator, kelompok=kelompok, is_ketua=True)
+                    if anggota:
+                        for a in anggota.splitlines():
+                            a = a.strip()
+                            if a:
+                                Anggota.objects.create(nama=a, kelompok=kelompok)
                 return redirect('panitia:daftar_kelompok')
             else:
                 return render(request, 'panitia/edit_kelompok.html', {
@@ -223,4 +232,8 @@ def daftar_kelompok(request):
                     'anggota_list': anggota_list,
                     'koordinator_list': koordinator_list,
                 })
-    return render(request, 'panitia/daftar_kelompok.html', {'kelompok_list': kelompok_list})
+    return render(request, 'panitia/daftar_kelompok.html', {
+        'kelompok_list': kelompok_list,
+        'bisa_lihat': bisa_lihat,
+        'bisa_edit': bisa_edit,
+    })

@@ -1,4 +1,3 @@
-
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -120,7 +119,29 @@ class PanitiaPelaksana(models.Model):
         return [a.strip() for a in self.anggota.splitlines() if a.strip()]
 
     def __str__(self):
-        return f"{self.jabatan} (kedudukan: {self.kedudukan})"
+        return f"Pelaksana - {self.jabatan} (kedudukan: {self.kedudukan})"
+
+class PanitiaUtama(models.Model):
+    jabatan = models.CharField(max_length=100)
+    anggota = models.TextField(help_text="Masukkan satu nama per baris")
+    kedudukan = models.PositiveIntegerField(default=99)
+
+    def anggota_list(self):
+        return [a.strip() for a in self.anggota.splitlines() if a.strip()]
+
+    def __str__(self):
+        return f"Utama - {self.jabatan} (kedudukan: {self.kedudukan})"
+
+class PetugasUpacara(models.Model):
+    jabatan = models.CharField(max_length=100)
+    anggota = models.TextField(help_text="Masukkan satu nama per baris")
+    kedudukan = models.PositiveIntegerField(default=99)
+
+    def anggota_list(self):
+        return [a.strip() for a in self.anggota.splitlines() if a.strip()]
+
+    def __str__(self):
+        return f"Upacara - {self.jabatan} (kedudukan: {self.kedudukan})"
 
 class TugasUpacara(models.Model):
     jabatan = models.CharField(max_length=100)

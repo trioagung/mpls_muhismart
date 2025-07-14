@@ -92,7 +92,7 @@ def koordinator_kelompok(request):
 @login_required
 def petugas_upacara(request):
     from .forms_upacara import PetugasUpacaraForm
-    from .models import PanitiaPelaksana
+    from .models import PetugasUpacara
     from .helpers import get_akses
     bisa_lihat, bisa_edit = get_akses(request.user, 'Petugas Upacara')
     if not bisa_lihat:
@@ -108,15 +108,15 @@ def petugas_upacara(request):
                 kedudukan_int = int(data['kedudukan'])
             except (ValueError, TypeError):
                 kedudukan_int = 99
-            PanitiaPelaksana.objects.create(jabatan=data['jabatan'], anggota=anggota, kedudukan=kedudukan_int)
+            PetugasUpacara.objects.create(jabatan=data['jabatan'], anggota=anggota, kedudukan=kedudukan_int)
             return redirect('panitia:petugas_upacara')
     else:
         form = PetugasUpacaraForm()
     if request.method == 'POST' and 'hapus' in request.POST and bisa_edit:
         jabatan = request.POST.get('hapus')
-        PanitiaPelaksana.objects.filter(jabatan=jabatan).delete()
+        PetugasUpacara.objects.filter(jabatan=jabatan).delete()
         return redirect('panitia:petugas_upacara')
-    petugas_sorted = PanitiaPelaksana.objects.all().order_by('kedudukan', 'jabatan')
+    petugas_sorted = PetugasUpacara.objects.all().order_by('kedudukan', 'jabatan')
     return render(request, 'panitia/petugas_upacara.html', {
         "petugas_upacara": petugas_sorted,
         "form": form,

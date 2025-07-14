@@ -3,7 +3,7 @@ from collections import defaultdict
 from django.shortcuts import render, redirect
 from .forms import PanitiaForm
 from .helpers import get_akses
-from .models import PanitiaPelaksana
+from .models import PanitiaUtama
 
 # Dummy data koordinator kelompok
 KOORDINATOR_KELOMPOK = []
@@ -64,7 +64,7 @@ def struktur_organisasi(request):
     bisa_lihat, bisa_edit = get_akses(request.user, 'Panitia Utama')
     if not bisa_lihat:
         return render(request, 'panitia/no_access.html', {'menu': 'Panitia Utama'})
-    struktur_sorted = list(PanitiaPelaksana.objects.all().order_by('kedudukan', 'jabatan'))
+    struktur_sorted = list(PanitiaUtama.objects.all().order_by('kedudukan', 'jabatan'))
     piramida = defaultdict(list)
     for item in struktur_sorted:
         piramida[item.kedudukan].append({
@@ -84,10 +84,10 @@ def struktur_organisasi(request):
             except (ValueError, TypeError):
                 kedudukan_int = 99
             if jabatan and anggota:
-                PanitiaPelaksana.objects.create(jabatan=jabatan, anggota=anggota, kedudukan=kedudukan_int)
+                PanitiaUtama.objects.create(jabatan=jabatan, anggota=anggota, kedudukan=kedudukan_int)
         elif 'hapus_panitia' in request.POST:
             jabatan = request.POST.get('hapus_panitia', '').strip()
-            PanitiaPelaksana.objects.filter(jabatan=jabatan).delete()
+            PanitiaUtama.objects.filter(jabatan=jabatan).delete()
         elif 'edit_panitia' in request.POST:
             jabatan = request.POST.get('edit_panitia', '').strip()
             anggota = request.POST.get('anggota_edit', '').strip()
@@ -96,7 +96,7 @@ def struktur_organisasi(request):
                 kedudukan_int = int(kedudukan)
             except (ValueError, TypeError):
                 kedudukan_int = 99
-            obj = PanitiaPelaksana.objects.filter(jabatan=jabatan).first()
+            obj = PanitiaUtama.objects.filter(jabatan=jabatan).first()
             if obj and anggota:
                 obj.anggota = anggota
                 obj.kedudukan = kedudukan_int
@@ -164,7 +164,7 @@ def tambah_panitia(request):
                 kedudukan_int = int(data['kedudukan'])
             except (ValueError, TypeError):
                 kedudukan_int = 99
-            PanitiaPelaksana.objects.create(jabatan=data['jabatan'], anggota=anggota, kedudukan=kedudukan_int)
+            PanitiaUtama.objects.create(jabatan=data['jabatan'], anggota=anggota, kedudukan=kedudukan_int)
             return redirect('panitia:struktur_organisasi')
     else:
         form = PanitiaForm()
@@ -172,7 +172,7 @@ def tambah_panitia(request):
 
 @login_required
 def hapus_panitia(request, jabatan):
-    panitia = PanitiaPelaksana.objects.filter(jabatan=jabatan).first()
+    panitia = PanitiaUtama.objects.filter(jabatan=jabatan).first()
     if not panitia:
         return redirect('panitia:struktur_organisasi')
     if request.method == 'POST':

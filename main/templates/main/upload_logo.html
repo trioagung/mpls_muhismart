@@ -17,18 +17,30 @@
     <div class="flex flex-col items-center justify-center min-h-screen">
         <div class="glass-card w-full max-w-md p-8 mt-10 animate-fade-in">
             <h2 class="text-2xl font-bold text-center mb-6 text-[#2575fc]">Upload Logo Sekolah</h2>
-            {% if user.is_superuser %}
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="mb-4 p-3 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% if not error %}
             <form method="post" enctype="multipart/form-data" class="space-y-6 bg-white bg-opacity-80 rounded-xl shadow-lg p-8 max-w-md mx-auto">
                 {% csrf_token %}
                 <div class="flex flex-col items-center gap-4">
-                    <input type="file" name="logo" accept="image/*" required>
+                    <div class="text-sm text-gray-600 mb-2">
+                        Format yang didukung: PNG, JPG, JPEG, GIF
+                    </div>
+                    <input type="file" name="logo" accept="image/*" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                     <button type="submit" class="w-full py-2 px-4 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded-lg shadow hover:bg-fuchsia-600 transition font-semibold">Upload Logo</button>
                 </div>
             </form>
             {% else %}
-            <div class="text-center text-red-500 font-semibold">Anda tidak memiliki akses untuk mengganti logo.</div>
+            <div class="text-center text-red-500 font-semibold bg-red-100 p-4 rounded-lg">Anda tidak memiliki akses untuk mengganti logo.</div>
             {% endif %}
-            <a href="{% url 'home' %}">Kembali ke Home</a>
+            <a href="{% url 'main:home' %}" class="block text-center mt-4 text-indigo-600 hover:text-indigo-800 transition">Kembali ke Home</a>
         </div>
     </div>
 </body>

@@ -92,6 +92,8 @@ def logistik(request):
         'logistik_pribadi': logistik_pribadi,
         'logistik_kelompok': logistik_kelompok,
         'barang_larangan': barang_larangan,
+        'bisa_lihat': bisa_lihat,
+        'bisa_edit': bisa_edit,
     })
 
     if request.method == 'POST':
