@@ -63,7 +63,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'trioagung64$mpls_muhismart',
         'USER': 'trioagung64',
-        'PASSWORD': 'YOUR_MYSQL_PASSWORD_HERE',
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD', 'YOUR_MYSQL_PASSWORD_HERE'),
         'HOST': 'trioagung64.mysql.pythonanywhere-services.com',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
