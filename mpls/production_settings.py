@@ -2,7 +2,8 @@ import os
 from .settings import *
 
 # Production settings
-DEBUG = False
+DEBUG = True  # Temporary untuk debugging - set False setelah fix
+ALLOWED_HOSTS = ['*']  # Temporary untuk debugging
 
 # Environment variables untuk production
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-)3m2xalpsagd^rl2x)tiznnfl4j&djvluddzc+^0#w@vxvs8vv')
@@ -12,6 +13,8 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '.railway.app',     # Railway domain
+    'web-production-7171.up.railway.app',  # Correct Railway URL
+    'web-production-717f.up.railway.app',  # Previous URL (backup)
     '.vercel.app',      # Vercel domain
     '.herokuapp.com',   # Heroku domain
     '.render.com',      # Render domain

@@ -1,0 +1,4 @@
+DJANGO_SETTINGS_MODULE=mpls.production_settings
+SECRET_KEY=mpls-muhismart-railway-trioagung-production-2025
+PORT=8000
+PYTHONPATH=/app
