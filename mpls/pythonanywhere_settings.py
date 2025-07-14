@@ -10,8 +10,8 @@ SECRET_KEY = 'mpls-muhismart-pythonanywhere-production-2025'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-# PythonAnywhere domain - update sesuai username Anda
-ALLOWED_HOSTS = ['your-username.pythonanywhere.com', 'localhost', '127.0.0.1']
+# PythonAnywhere domain - trioagung64
+ALLOWED_HOSTS = ['trioagung64.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 # Application definition
 INSTALLED_APPS = [
@@ -61,10 +61,10 @@ WSGI_APPLICATION = 'mpls.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'your_username$mpls_muhismart',
-        'USER': 'your_username',
-        'PASSWORD': 'your_mysql_password',
-        'HOST': 'your_username.mysql.pythonanywhere-services.com',
+        'NAME': 'trioagung64$mpls_muhismart',
+        'USER': 'trioagung64',
+        'PASSWORD': 'YOUR_MYSQL_PASSWORD_HERE',
+        'HOST': 'trioagung64.mysql.pythonanywhere-services.com',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
@@ -95,11 +95,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = '/home/your_username/mpls.muhismart/staticfiles'
+STATIC_ROOT = '/home/trioagung64/mpls.muhismart/staticfiles'
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/home/your_username/mpls.muhismart/media'
+MEDIA_ROOT = '/home/trioagung64/mpls.muhismart/media'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
