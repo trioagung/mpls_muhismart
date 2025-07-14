@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-4xl relative">
+        <h2 class="text-3xl font-bold text-center text-white mb-6 animate-fade-in">📆 Jadwal Kegiatan</h2>
+        {% if user.is_superuser %}
+        <div class="flex justify-end mb-4">
+            <button type="button" id="showInputBtn" class="py-2 px-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center gap-2"><i class="fas fa-plus"></i> Tambah Kegiatan</button>
+        </div>
+        <form method="post" class="mb-8" id="inputForm" style="display:none;">
+            {% csrf_token %}
+            <div class="flex flex-col md:flex-row gap-8 mb-8">
+                <div class="flex-1 flex flex-col gap-2">
+                    <select name="hari" class="px-3 py-2 rounded border border-blue-300 focus:outline-none" required>
+                        <option value="" disabled selected>Pilih Hari</option>
+                        <option value="1">Hari Pertama</option>
+                        <option value="2">Hari Kedua</option>
+                    </select>
+                    <input type="text" name="waktu" placeholder="Waktu kegiatan" class="px-3 py-2 rounded border border-blue-300 focus:outline-none" required>
+                    <input type="text" name="planA" placeholder="Plan A" class="px-3 py-2 rounded border border-blue-300 focus:outline-none" required>
+                    <input type="text" name="planB" placeholder="Plan B" class="px-3 py-2 rounded border border-blue-300 focus:outline-none" required>
+                    <div class="flex gap-2">
+                        <button type="submit" name="tambah" class="py-2 px-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Tambah</button>
+                        <button type="button" id="batalInputBtn" class="py-2 px-4 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-lg shadow hover:bg-red-600 flex items-center justify-center gap-2"><i class="fas fa-times"></i> Batal</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        {% endif %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-xl font-bold text-white mb-4">Hari Pertama</h3>
+                <table class="w-full text-white mb-4 border border-white/40">
+                    <thead>
+                        <tr class="bg-gradient-to-r from-blue-900 via-indigo-800 to-purple-900 text-white">
+                            <th class="px-2 py-1 border border-white/40 text-center">No</th>
+                            <th class="px-2 py-1 border border-white/40 text-center">Waktu</th>
+                            <th class="px-2 py-1 border border-white/40 text-center">Plan A</th>
+                            <th class="px-2 py-1 border border-white/40 text-center">Plan B</th>
+                            <th class="px-2 py-1 border border-white/40 text-center rounded-tr-xl">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in jadwal1 %}
+                        <tr>
+                            <td class="border border-white/40 text-center">{{ forloop.counter }}</td>
+                            <td class="border border-white/40 text-center">{{ item.waktu }}</td>
+                            <td class="border border-white/40 text-center">{{ item.planA }}</td>
+                            <td class="border border-white/40 text-center">{{ item.planB }}</td>
+                            <td class="border border-white/40 text-center">
+                                {% if user.is_superuser %}
+                                <div class="relative inline-block text-left">
+                                    <button type="button" onclick="toggleDropdown('aksi1-{{ forloop.counter0 }}')" class="edit-btn px-2 py-1 bg-yellow-400/90 text-white rounded shadow hover:bg-yellow-500 flex items-center justify-center"><i class="fas fa-edit"></i></button>
+                                    <div id="aksi1-{{ forloop.counter0 }}" class="origin-top-right absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 hidden">
+                                        <div class="py-1 flex flex-col gap-1">
+                                            <form method="post" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="edit1" value="{{ forloop.counter0 }}">
+                                                <button type="submit" class="w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-yellow-100 flex items-center gap-2"><i class="fas fa-edit"></i> Edit</button>
+                                            </form>
+                                            <form method="post" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="hapus1" value="{{ forloop.counter0 }}">
+                                                <button type="submit" class="w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-red-100 flex items-center gap-2"><i class="fas fa-trash"></i> Hapus</button>
+                                            </form>
+                                            <form method="post" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="up1" value="{{ forloop.counter0 }}">
+                                                <button type="submit" class="w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-blue-100 flex items-center gap-2"><i class="fas fa-arrow-up"></i> Naik</button>
+                                            </form>
+                                            <form method="post" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="down1" value="{{ forloop.counter0 }}">
+                                                <button type="submit" class="w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-blue-100 flex items-center gap-2"><i class="fas fa-arrow-down"></i> Turun</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center text-white/70">Belum ada kegiatan.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-white mb-4">Hari Kedua</h3>
+                <table class="w-full text-white mb-4 border border-white/40">
+                    <thead>
+                        <tr class="bg-gradient-to-r from-blue-900 via-indigo-800 to-purple-900 text-white">
+                            <th class="px-2 py-1 border border-white/40 text-center">No</th>
+                            <th class="px-2 py-1 border border-white/40 text-center">Waktu</th>
+                            <th class="px-2 py-1 border border-white/40 text-center">Plan A</th>
+                            <th class="px-2 py-1 border border-white/40 text-center">Plan B</th>
+                            <th class="px-2 py-1 border border-white/40 text-center rounded-tr-xl">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in jadwal2 %}
+                        <tr>
+                            <td class="border border-white/40 text-center">{{ forloop.counter }}</td>
+                            <td class="border border-white/40 text-center">{{ item.waktu }}</td>
+                            <td class="border border-white/40 text-center">{{ item.planA }}</td>
+                            <td class="border border-white/40 text-center">{{ item.planB }}</td>
+                            <td class="border border-white/40 text-center">
+                                {% if user.is_superuser %}
+                                <div class="relative inline-block text-left">
+                                    <button type="button" onclick="toggleDropdown('aksi2-{{ forloop.counter0 }}')" class="edit-btn px-2 py-1 bg-yellow-400/90 text-white rounded shadow hover:bg-yellow-500 flex items-center justify-center"><i class="fas fa-edit"></i></button>
+                                    <div id="aksi2-{{ forloop.counter0 }}" class="origin-top-right absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 hidden">
+                                        <div class="py-1 flex flex-col gap-1">
+                                            <form method="post" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="edit2" value="{{ forloop.counter0 }}">
+                                                <button type="submit" class="w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-yellow-100 flex items-center gap-2"><i class="fas fa-edit"></i> Edit</button>
+                                            </form>
+                                            <form method="post" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="hapus2" value="{{ forloop.counter0 }}">
+                                                <button type="submit" class="w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-red-100 flex items-center gap-2"><i class="fas fa-trash"></i> Hapus</button>
+                                            </form>
+                                            <form method="post" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="up2" value="{{ forloop.counter0 }}">
+                                                <button type="submit" class="w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-blue-100 flex items-center gap-2"><i class="fas fa-arrow-up"></i> Naik</button>
+                                            </form>
+                                            <form method="post" style="display:inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="down2" value="{{ forloop.counter0 }}">
+                                                <button type="submit" class="w-full text-left px-3 py-1 text-sm text-gray-700 hover:bg-blue-100 flex items-center gap-2"><i class="fas fa-arrow-down"></i> Turun</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="text-center text-white/70">Belum ada kegiatan.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="w-full flex justify-start mt-8">
+            <a href="{% url 'main:home' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded shadow hover:bg-fuchsia-600 transition text-sm font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali
+            </a>
+        </div>
+    </div>
+</div>
+<script>
+function toggleDropdown(id) {
+    document.querySelectorAll('[id^="aksi1-"], [id^="aksi2-"]').forEach(function(el) {
+        if (el.id !== id) el.classList.add('hidden');
+    });
+    var el = document.getElementById(id);
+    if (el) el.classList.toggle('hidden');
+}
+document.getElementById('showInputBtn').onclick = function() {
+    document.getElementById('inputForm').style.display = 'block';
+    this.style.display = 'none';
+};
+document.getElementById('batalInputBtn').onclick = function() {
+    document.getElementById('inputForm').style.display = 'none';
+    document.getElementById('showInputBtn').style.display = 'inline-flex';
+};
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.relative.inline-block.text-left')) {
+        document.querySelectorAll('[id^="aksi1-"], [id^="aksi2-"]').forEach(function(el) {
+            el.classList.add('hidden');
+        });
+    }
+});
+</script>
+{% endblock %}

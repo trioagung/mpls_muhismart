@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+{% load panitia_extras %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-5xl relative">
+        <h2 class="text-3xl font-bold text-center text-white mb-6 animate-fade-in">Absensi</h2>
+        <div class="flex justify-end mb-4">
+            {% if bisa_edit %}
+            <button type="button" id="showTambahAgendaBtn" class="py-2 px-4 bg-gradient-to-r from-purple-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center gap-2"><i class="fas fa-calendar-plus"></i> Kelola Agenda</button>
+            {% endif %}
+        </div>
+        <!-- Form Tambah Agenda -->
+        {% if bisa_edit %}
+        <form method="post" id="formTambahAgenda" style="display:none;" class="mb-6">
+            {% csrf_token %}
+            <div class="flex gap-2 items-end flex-wrap">
+                <input type="text" name="nama_agenda" placeholder="Nama Agenda" class="px-3 py-2 rounded border border-blue-300 focus:outline-none" required>
+                <button type="submit" name="tambah_agenda" class="py-2 px-4 bg-gradient-to-r from-purple-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center gap-2"><i class="fas fa-plus"></i> Tambah</button>
+                
+                {% if agenda_list %}
+                <select id="selectAgendaEdit" class="px-3 py-2 rounded border border-blue-300 focus:outline-none">
+                    <option value="">Pilih agenda untuk edit/hapus</option>
+                    {% for agenda in agenda_list %}
+                    <option value="{{ agenda.id }}" data-nama="{{ agenda.nama }}">{{ agenda.nama }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" onclick="editAgendaTerpilih()" class="py-2 px-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-lg shadow hover:bg-yellow-600 flex items-center gap-2"><i class="fas fa-edit"></i> Edit</button>
+                <button type="button" onclick="hapusAgendaTerpilih()" class="py-2 px-4 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-lg shadow hover:bg-red-700 flex items-center gap-2"><i class="fas fa-trash"></i> Hapus</button>
+                {% endif %}
+                
+                <button type="button" id="batalTambahAgendaBtn" class="py-2 px-4 bg-gray-400/80 text-white rounded-lg shadow hover:bg-gray-500">Batal</button>
+            </div>
+        </form>
+        {% endif %}
+        <!-- Daftar Kelompok -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="mt-8 w-full flex flex-col gap-8">
+                {% for kelompok in kelompok_absen %}
+                <div class="bg-gradient-to-br from-blue-400/60 via-indigo-400/50 to-purple-500/60 bg-opacity-60 backdrop-blur-lg border border-blue-200/30 rounded-2xl shadow-lg p-6 mb-6">
+                    <h3 class="text-2xl font-bold text-center text-white mb-4 drop-shadow">{{ kelompok.nama }}</h3>
+                    <div class="overflow-x-auto relative">
+                        <table class="min-w-max w-full rounded-xl shadow bg-white bg-opacity-30 backdrop-blur-md border border-blue-200/30">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-blue-200 bg-gradient-to-r from-blue-200/60 to-purple-200/60 border-r border-blue-300">No</th>
+                                    <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-blue-200 bg-gradient-to-r from-blue-200/60 to-purple-200/60 border-r border-blue-300">Nama Anggota</th>
+                                    {% for agenda in agenda_list %}
+                                    <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-blue-200 bg-gradient-to-r from-blue-200/60 to-purple-200/60 border-r border-blue-300 relative agenda-header">
+                                        <div class="flex items-center justify-center gap-1">
+                                            {% if bisa_edit %}
+                                            <button type="button" class="swap-agenda-left px-1 py-0.5 rounded bg-blue-300/60 hover:bg-blue-400" data-agenda-idx="{{ forloop.counter0 }}" {% if forloop.first %}disabled style="opacity:0.4;pointer-events:none;"{% endif %}><i class="fas fa-chevron-left"></i></button>
+                                            {% endif %}
+                                            <span class="agenda-name" data-agenda-id="{{ agenda.id }}">{{ agenda.nama }}</span>
+                                            {% if bisa_edit %}
+                                            <button type="button" class="swap-agenda-right px-1 py-0.5 rounded bg-blue-300/60 hover:bg-blue-400" data-agenda-idx="{{ forloop.counter0 }}" {% if forloop.last %}disabled style="opacity:0.4;pointer-events:none;"{% endif %}><i class="fas fa-chevron-right"></i></button>
+                                            {% endif %}
+                                        </div>
+                                    </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-blue-100">
+                                {% for anggota in kelompok.anggota %}
+                                <tr class="hover:bg-blue-200/40 transition">
+                                    <td class="px-4 py-2 text-center text-white font-semibold border-r border-blue-300">{{ forloop.counter }}</td>
+                                    <td class="px-4 py-2 text-center text-white font-semibold border-r border-blue-300">{{ anggota.nama }}</td>
+                                    {% for agenda in agenda_list %}
+                                    <td class="px-4 py-2 text-center agenda-cell text-white font-semibold border-r border-blue-300">
+                                        {% with kdata=absensi_data|safe_get:kelompok.nama %}
+                                        {% with adata=kdata|safe_get:anggota.nama %}
+                                        <input type="checkbox" name="absen_{{ kelompok.nama }}_{{ anggota.nama }}_{{ agenda.nama }}" class="agenda-checkbox" {% if adata and adata|safe_get:agenda.nama %}checked{% endif %} {% if not bisa_edit %}disabled{% endif %}>
+                                        {% endwith %}
+                                        {% endwith %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-white py-4">Belum ada kelompok absen.</div>
+                {% endfor %}
+            </div>
+            
+            <!-- Tombol Download -->
+            <div class="flex justify-center mt-6 gap-4">
+                <a href="{% url 'panitia:download_absensi_pdf' %}" class="py-3 px-6 bg-gradient-to-r from-purple-400 to-blue-500 text-white rounded-lg shadow hover:bg-purple-700 flex items-center gap-2" target="_blank">
+                    <i class="fas fa-file-pdf"></i> Download PDF
+                </a>
+                <a href="{% url 'panitia:download_absensi_excel' %}" class="py-3 px-6 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-green-700 flex items-center gap-2" target="_blank">
+                    <i class="fas fa-file-excel"></i> Download Excel
+                </a>
+            </div>
+            
+            <!-- Tombol Kembali -->
+            <div class="flex justify-start mt-6">
+                <a href="{% url 'main:home' %}" class="py-2 px-4 bg-gradient-to-r from-gray-400 to-gray-600 text-white rounded-lg shadow hover:bg-gray-700 flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i> Kembali
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Hidden forms for edit and delete agenda -->
+{% if bisa_edit %}
+<form id="editAgendaForm" method="post" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="edit_agenda" value="1">
+    <input type="hidden" name="agenda_id" id="editAgendaId">
+    <input type="hidden" name="nama_agenda_baru" id="editAgendaNama">
+</form>
+
+<form id="hapusAgendaForm" method="post" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="hapus_agenda" value="1">
+    <input type="hidden" name="agenda_id" id="hapusAgendaId">
+</form>
+{% endif %}
+<script>
+// Set permission variables
+const bisaEdit = {% if bisa_edit %}true{% else %}false{% endif %};
+
+document.getElementById('showTambahAgendaBtn').onclick = function() {
+    document.getElementById('formTambahAgenda').style.display = 'block';
+    this.style.display = 'none';
+};
+document.getElementById('batalTambahAgendaBtn').onclick = function() {
+    document.getElementById('formTambahAgenda').style.display = 'none';
+    document.getElementById('showTambahAgendaBtn').style.display = 'inline-flex';
+};
+// Scroll agenda header
+const scrollAmount = 150;
+document.querySelectorAll('.agenda-scroll-left').forEach(btn => {
+    btn.onclick = function() {
+        const tableDiv = btn.nextElementSibling;
+        tableDiv.scrollLeft -= scrollAmount;
+    };
+});
+document.querySelectorAll('.agenda-scroll-right').forEach(btn => {
+    btn.onclick = function() {
+        const tableDiv = btn.previousElementSibling;
+        tableDiv.scrollLeft += scrollAmount;
+    };
+});
+// Swap agenda columns (header dan cell bawahnya ikut swap)
+function swapAgendaCol(table, fromIdx, toIdx) {
+    // swap header
+    const headRow = table.querySelector('thead tr');
+    const ths = Array.from(headRow.querySelectorAll('.agenda-header'));
+    if (ths[fromIdx] && ths[toIdx]) {
+        if (fromIdx < toIdx) {
+            headRow.insertBefore(ths[toIdx], ths[fromIdx]);
+        } else {
+            headRow.insertBefore(ths[fromIdx], ths[toIdx]);
+        }
+    }
+    // swap cell di setiap row
+    table.querySelectorAll('tbody tr').forEach(row => {
+        const tds = Array.from(row.querySelectorAll('.agenda-cell'));
+        if (tds[fromIdx] && tds[toIdx]) {
+            if (fromIdx < toIdx) {
+                row.insertBefore(tds[toIdx], tds[fromIdx]);
+            } else {
+                row.insertBefore(tds[fromIdx], tds[toIdx]);
+            }
+        }
+    });
+    // update data-agenda-idx pada tombol panah
+    table.querySelectorAll('.agenda-header').forEach((th, i, arr) => {
+        th.querySelector('.swap-agenda-left').setAttribute('data-agenda-idx', i);
+        th.querySelector('.swap-agenda-right').setAttribute('data-agenda-idx', i);
+    });
+}
+function getAgendaOrder() {
+    // Ambil urutan agenda terbaru dari header
+    const order = [];
+    document.querySelectorAll('.agenda-header .agenda-name').forEach(span => {
+        order.push(span.textContent.trim());
+    });
+    return order;
+}
+function saveAgendaOrder() {
+    const order = getAgendaOrder();
+    const csrf = document.querySelector('input[name=csrfmiddlewaretoken]').value;
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrf,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'agenda_order=' + JSON.stringify(order),
+    });
+}
+document.querySelectorAll('.swap-agenda-left').forEach(btn => {
+    btn.onclick = function() {
+        if (!bisaEdit) {
+            alert('Anda tidak memiliki akses untuk mengubah urutan agenda!');
+            return;
+        }
+        if (btn.hasAttribute('disabled')) return;
+        const idx = parseInt(btn.getAttribute('data-agenda-idx'));
+        if (idx > 0) {
+            document.querySelectorAll('table').forEach(table => swapAgendaCol(table, idx, idx-1));
+            updateAgendaButtons();
+            saveAgendaOrder();
+        }
+    };
+});
+document.querySelectorAll('.swap-agenda-right').forEach(btn => {
+    btn.onclick = function() {
+        if (!bisaEdit) {
+            alert('Anda tidak memiliki akses untuk mengubah urutan agenda!');
+            return;
+        }
+        if (btn.hasAttribute('disabled')) return;
+        const idx = parseInt(btn.getAttribute('data-agenda-idx'));
+        const agendaCount = document.querySelectorAll('.agenda-header').length;
+        if (idx < agendaCount - 1) {
+            document.querySelectorAll('table').forEach(table => swapAgendaCol(table, idx, idx+1));
+            updateAgendaButtons();
+            saveAgendaOrder();
+        }
+    };
+});
+function updateAgendaButtons() {
+    document.querySelectorAll('tr .swap-agenda-left').forEach((btn, i, arr) => {
+        if (i === 0) {
+            btn.setAttribute('disabled', '');
+            btn.style.opacity = 0.4;
+            btn.style.pointerEvents = 'none';
+        } else {
+            btn.removeAttribute('disabled');
+            btn.style.opacity = 1;
+            btn.style.pointerEvents = '';
+        }
+    });
+    document.querySelectorAll('tr .swap-agenda-right').forEach((btn, i, arr) => {
+        if (i === arr.length - 1) {
+            btn.setAttribute('disabled', '');
+            btn.style.opacity = 0.4;
+            btn.style.pointerEvents = 'none';
+        } else {
+            btn.removeAttribute('disabled');
+            btn.style.opacity = 1;
+            btn.style.pointerEvents = '';
+        }
+    });
+}
+updateAgendaButtons();
+document.querySelectorAll('.agenda-checkbox').forEach(cb => {
+    cb.addEventListener('change', function() {
+        const form = cb.closest('form');
+        const data = new FormData(form);
+        // Set semua checkbox ke 'off' dulu agar yang tidak dicentang juga ikut terupdate
+        document.querySelectorAll('.agenda-checkbox').forEach(box => {
+            if (!box.checked) {
+                data.set(box.name, '');
+            }
+        });
+        // Hanya kirim 1 perubahan (yang diubah saja)
+        data.set(cb.name, cb.checked ? 'on' : '');
+        fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': data.get('csrfmiddlewaretoken'),
+            },
+            body: data,
+        }).then(() => {
+            // Optional: tampilkan notifikasi sukses
+        });
+    });
+});
+
+// Function untuk edit agenda dari dropdown
+function editAgendaTerpilih() {
+    if (!bisaEdit) {
+        alert('Anda tidak memiliki akses untuk mengedit agenda!');
+        return;
+    }
+    
+    const select = document.getElementById('selectAgendaEdit');
+    
+    if (!select) {
+        alert('Error: Dropdown agenda tidak ditemukan!');
+        return;
+    }
+    
+    const selectedOption = select.options[select.selectedIndex];
+    
+    if (!selectedOption || !selectedOption.value) {
+        alert('Silakan pilih agenda yang akan diedit!');
+        return;
+    }
+    
+    const agendaId = selectedOption.value;
+    const namaSaat = selectedOption.getAttribute('data-nama');
+    
+    if (!namaSaat) {
+        alert('Error: Tidak dapat menemukan nama agenda saat ini!');
+        return;
+    }
+    
+    const namaBaru = prompt('Edit nama agenda:', namaSaat);
+    
+    if (namaBaru && namaBaru.trim() && namaBaru.trim() !== namaSaat) {
+        // Cek apakah form element ada
+        const editForm = document.getElementById('editAgendaForm');
+        const editIdInput = document.getElementById('editAgendaId');
+        const editNamaInput = document.getElementById('editAgendaNama');
+        
+        if (!editForm || !editIdInput || !editNamaInput) {
+            alert('Error: Form edit tidak ditemukan!');
+            return;
+        }
+        
+        editIdInput.value = agendaId;
+        editNamaInput.value = namaBaru.trim();
+        editForm.submit();
+    }
+}
+
+// Function untuk hapus agenda dari dropdown
+function hapusAgendaTerpilih() {
+    if (!bisaEdit) {
+        alert('Anda tidak memiliki akses untuk menghapus agenda!');
+        return;
+    }
+    
+    const select = document.getElementById('selectAgendaEdit');
+    const selectedOption = select.options[select.selectedIndex];
+    
+    if (!selectedOption.value) {
+        alert('Silakan pilih agenda yang akan dihapus!');
+        return;
+    }
+    
+    const agendaId = selectedOption.value;
+    const namaAgenda = selectedOption.getAttribute('data-nama');
+    
+    if (confirm('Yakin ingin menghapus agenda "' + namaAgenda + '"?\nSemua data absensi untuk agenda ini akan terhapus!')) {
+        document.getElementById('hapusAgendaId').value = agendaId;
+        document.getElementById('hapusAgendaForm').submit();
+    }
+}
+
+// Function untuk edit agenda (untuk backward compatibility jika masih diperlukan)
+function editAgenda(agendaId, namaSaat) {
+    if (!bisaEdit) {
+        alert('Anda tidak memiliki akses untuk mengedit agenda!');
+        return;
+    }
+    
+    const namaBaru = prompt('Edit nama agenda:', namaSaat);
+    if (namaBaru && namaBaru.trim() && namaBaru.trim() !== namaSaat) {
+        document.getElementById('editAgendaId').value = agendaId;
+        document.getElementById('editAgendaNama').value = namaBaru.trim();
+        document.getElementById('editAgendaForm').submit();
+    }
+}
+
+// Function untuk hapus agenda (untuk backward compatibility jika masih diperlukan)
+function hapusAgenda(agendaId, namaAgenda) {
+    if (!bisaEdit) {
+        alert('Anda tidak memiliki akses untuk menghapus agenda!');
+        return;
+    }
+    
+    if (confirm('Yakin ingin menghapus agenda "' + namaAgenda + '"?\nSemua data absensi untuk agenda ini akan terhapus!')) {
+        document.getElementById('hapusAgendaId').value = agendaId;
+        document.getElementById('hapusAgendaForm').submit();
+    }
+}
+</script>
+{% endblock %}

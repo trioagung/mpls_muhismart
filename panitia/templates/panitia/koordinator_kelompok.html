@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-4xl">
+        <h2 class="text-3xl font-bold text-center text-white mb-6 animate-fade-in flex items-center justify-center gap-2"><i class="fas fa-user-tie text-green-300"></i> Koordinator Kelompok</h2>
+        <!-- Tombol Kembali dipindah ke bawah kiri -->
+        {% if bisa_edit %}
+        <div class="flex flex-col items-center mb-4">
+            <button onclick="document.getElementById('modal-koordinator').classList.remove('hidden')" class="mt-4 px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">+ Tambah Koordinator Kelompok</button>
+        </div>
+        {% endif %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full bg-gradient-to-r from-blue-400/60 via-indigo-400/50 to-purple-500/60 bg-opacity-70 rounded-2xl shadow text-center">
+            <thead>
+                <tr class="bg-indigo-900 text-white rounded-t-2xl">
+                    <th class="px-4 py-2 font-bold border-b border-white/30">Kelompok</th>
+                    <th class="px-4 py-2 font-bold border-b border-white/30">Koordinator</th>
+                    <th class="px-4 py-2 font-bold border-b border-white/30">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in koordinator_kelompok %}
+                <tr class="border-b border-white/20">
+                    <td class="px-4 py-2 align-middle text-white">{{ row.kelompok }}</td>
+                    <td class="px-4 py-2 align-middle">
+                        <ul class="flex flex-col items-center">
+                            {% for nama in row.koordinator %}
+                                <li class="block text-base font-normal text-white">{{ nama }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td class="px-4 py-2 align-middle flex justify-center gap-2">
+                        {% if bisa_edit %}
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="hapus_koordinator" value="{{ forloop.counter0 }}">
+                            <button type="submit" class="px-3 py-1 text-sm bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full shadow hover:bg-pink-600 flex items-center gap-1"><i class="fas fa-trash"></i> Hapus</button>
+                        </form>
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="edit_koordinator" value="{{ forloop.counter0 }}">
+                            <button type="submit" class="px-3 py-1 text-sm bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-full shadow hover:bg-yellow-600 flex items-center gap-1"><i class="fas fa-edit"></i> Edit</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </table>
+        </div>
+        <!-- Modal Tambah/Edit Koordinator Kelompok -->
+        {% if bisa_edit %}
+        <div id="modal-koordinator" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl p-8 w-full max-w-md relative">
+                <button onclick="document.getElementById('modal-koordinator').classList.add('hidden')" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block font-semibold mb-1">Nama Kelompok</label>
+                        <input type="text" name="kelompok" class="w-full px-3 py-2 rounded border border-blue-300" required>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1">Nama Koordinator (masukkan satu per baris)</label>
+                        <textarea name="koordinator" rows="3" class="w-full px-3 py-2 rounded border border-blue-300" placeholder="Masukkan satu nama per baris" required></textarea>
+                    </div>
+                    <button type="submit" name="tambah_koordinator" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Tambah</button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        {% if edit_idx is not None and bisa_edit %}
+        {% with row=koordinator_kelompok|slice:edit_idx|first %}
+        <div id="modal-koordinator-edit" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div class="bg-white rounded-xl p-8 w-full max-w-md relative">
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <button onclick="document.getElementById('modal-koordinator-edit').classList.add('hidden');return false;" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+                    <div>
+                        <label class="block font-semibold mb-1">Nama Kelompok</label>
+                        <input type="text" name="kelompok_edit" class="w-full px-3 py-2 rounded border border-blue-300" value="{{ row.kelompok }}" required>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1">Nama Koordinator (masukkan satu per baris)</label>
+                        <textarea name="koordinator_edit" rows="3" class="w-full px-3 py-2 rounded border border-blue-300" required>{% for nama in row.koordinator %}{{ nama }}
+{% endfor %}</textarea>
+                    </div>
+                    <input type="hidden" name="edit_koordinator" value="{{ edit_idx }}">
+                    <button type="submit" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Simpan</button>
+                </form>
+            </div>
+        </div>
+        {% endwith %}
+        {% endif %}
+
+        <div class="w-full flex justify-start mt-8">
+            <a href="{% url 'panitia:menu_ipm' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded shadow hover:bg-fuchsia-600 transition text-sm font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

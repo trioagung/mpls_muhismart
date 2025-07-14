@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-lg">
+        <h2 class="text-2xl font-bold text-center text-white mb-6">Tambah Panitia Pelaksana</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="block text-white font-semibold mb-1">Jabatan</label>
+                <input type="text" name="jabatan" class="w-full px-3 py-2 rounded border border-blue-300" required>
+            </div>
+            <div class="mb-4">
+                <label class="block text-white font-semibold mb-1">Nama Anggota (masukkan satu per baris)</label>
+                <textarea name="anggota" rows="4" class="w-full px-3 py-2 rounded border border-blue-300" required></textarea>
+            </div>
+            <div class="mb-4">
+                <label class="block text-white font-semibold mb-1">Nilai Kedudukan (angka, 1 = paling atas)</label>
+                <input type="number" name="kedudukan" class="w-full px-3 py-2 rounded border border-blue-300" value="99" required>
+            </div>
+            <button type="submit" name="tambah_panitia" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Tambah</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

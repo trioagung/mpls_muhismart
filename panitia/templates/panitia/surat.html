@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-2xl relative">
+        <h2 class="text-3xl font-bold text-center text-white mb-6 animate-fade-in flex items-center justify-center gap-2"><i class="fas fa-envelope-open-text text-pink-300"></i> Surat-Surat</h2>
+        {% if bisa_edit %}
+        <div class="flex justify-end mb-4">
+            <button type="button" id="showInputBtn" class="py-2 px-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center gap-2"><i class="fas fa-plus"></i> Tambah Surat</button>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="space-y-4 mb-8" id="inputForm" style="display:none;">
+            {% csrf_token %}
+            <div>
+                <label class="block text-white font-semibold mb-1">Nama Surat</label>
+                <input type="text" name="nama_surat" required class="w-full px-3 py-2 rounded border border-blue-300 focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-white font-semibold mb-1">File Surat</label>
+                <input type="file" name="file_surat" required class="w-full px-3 py-2 rounded border border-blue-300 focus:outline-none bg-white/80">
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" name="tambah_surat" class="py-2 px-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Tambah Surat</button>
+                <button type="button" id="batalInputBtn" class="py-2 px-4 bg-gray-400/80 text-white rounded-lg shadow hover:bg-gray-500">Batal</button>
+            </div>
+        </form>
+        {% endif %}
+        {% if bisa_lihat %}
+        <div class="flex flex-col gap-4 w-full">
+            {% for surat in surat_list %}
+            <div class="bg-gradient-to-br from-blue-400/60 via-indigo-400/50 to-purple-500/60 bg-opacity-60 backdrop-blur-lg border border-blue-200/30 rounded-xl p-4 shadow-md flex items-center justify-between">
+                <span class="text-white font-semibold">{{ surat.nama }}</span>
+                <div class="flex gap-2">
+                    <a href="{{ surat.url }}" target="_blank" class="px-3 py-1 bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded shadow hover:bg-blue-700 flex items-center gap-1"><i class="fas fa-eye"></i> Lihat</a>
+                    <a href="{{ surat.url }}" download class="px-3 py-1 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded shadow hover:bg-blue-600 flex items-center gap-1"><i class="fas fa-download"></i> Download</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-white py-4">Belum ada surat.</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="w-full flex justify-start mt-8">
+            <a href="{% url 'main:home' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded shadow hover:bg-fuchsia-600 transition text-sm font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali
+            </a>
+        </div>
+    </div>
+</div>
+<script>
+document.getElementById('showInputBtn').onclick = function() {
+    document.getElementById('inputForm').style.display = 'block';
+    this.style.display = 'none';
+};
+document.getElementById('batalInputBtn').onclick = function() {
+    document.getElementById('inputForm').style.display = 'none';
+    document.getElementById('showInputBtn').style.display = 'inline-flex';
+};
+</script>
+{% endblock %}

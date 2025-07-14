@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-4xl relative">
+        <h2 class="text-3xl font-bold text-center text-white mb-6 animate-fade-in flex items-center justify-center gap-2">
+            <i class="fas fa-coins text-orange-300"></i> Laporan Keuangan
+        </h2>
+        <!-- Tombol Kembali dipindah ke bawah kiri -->
+        {% if user.is_superuser %}
+        <div class="flex justify-end gap-2 mb-4">
+            {% if bisa_edit %}
+            <button type="button" id="showTambahTransaksiBtn" class="py-2 px-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center gap-2"><i class="fas fa-plus"></i> Tambah Transaksi</button>
+            {% endif %}
+        </div>
+        <!-- Form Tambah Transaksi -->
+        <form method="post" id="formTambahTransaksi" style="display:none;" class="mb-6">
+            {% csrf_token %}
+            <div class="flex gap-2 items-end">
+                <input type="text" name="keterangan" placeholder="Keterangan" class="px-3 py-2 rounded border border-blue-300 focus:outline-none" required>
+                <input type="number" name="jumlah" placeholder="Jumlah" class="px-3 py-2 rounded border border-blue-300 focus:outline-none" required>
+                <select name="jenis" class="px-3 py-2 rounded border border-blue-300 focus:outline-none" required>
+                    <option value="masuk">Pemasukan</option>
+                    <option value="keluar">Pengeluaran</option>
+                </select>
+                <input type="date" name="tanggal" class="px-3 py-2 rounded border border-blue-300 focus:outline-none" required>
+                <button type="submit" name="tambah_transaksi" class="py-2 px-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center gap-2"><i class="fas fa-plus"></i> Tambah</button>
+                <button type="button" id="batalTambahTransaksiBtn" class="py-2 px-4 bg-gray-400/80 text-white rounded-lg shadow hover:bg-gray-500">Batal</button>
+            </div>
+        </form>
+        {% endif %}
+        <!-- Tabel Laporan Keuangan -->
+        <div class="overflow-x-auto relative mt-8">
+            <table class="min-w-max w-full rounded-xl shadow bg-white bg-opacity-30 backdrop-blur-md border border-blue-200/30">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-blue-200 bg-gradient-to-r from-blue-200/60 to-purple-200/60 border-r border-blue-300">No<br><input type="text" class="w-12 px-1 py-0 rounded text-xs text-black" placeholder="No" onkeyup="filterTable(0, this.value)"></th>
+                        <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-blue-200 bg-gradient-to-r from-blue-200/60 to-purple-200/60 border-r border-blue-300">Keterangan<br><input type="text" class="w-24 px-1 py-0 rounded text-xs text-black" placeholder="Keterangan" onkeyup="filterTable(1, this.value)"></th>
+                        <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-blue-200 bg-gradient-to-r from-blue-200/60 to-purple-200/60 border-r border-blue-300">Jenis<br><input type="text" class="w-16 px-1 py-0 rounded text-xs text-black" placeholder="Jenis" onkeyup="filterTable(2, this.value)"></th>
+                        <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-blue-200 bg-gradient-to-r from-blue-200/60 to-purple-200/60 border-r border-blue-300">Jumlah<br><input type="text" class="w-16 px-1 py-0 rounded text-xs text-black" placeholder="Jumlah" onkeyup="filterTable(3, this.value)"></th>
+                        <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-blue-200 bg-gradient-to-r from-blue-200/60 to-purple-200/60 border-r border-blue-300">Tanggal<br><input type="text" class="w-20 px-1 py-0 rounded text-xs text-black" placeholder="Tanggal" onkeyup="filterTable(4, this.value)"></th>
+                        <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-blue-200 bg-gradient-to-r from-blue-200/60 to-purple-200/60 border-r border-blue-300">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-blue-100">
+                    {% for t in transaksi_list %}
+                    <tr class="hover:bg-blue-200/40 transition">
+                        <td class="px-4 py-2 text-center text-white font-semibold border-r border-blue-300">{{ forloop.counter }}</td>
+                        <td class="px-4 py-2 text-center text-white font-semibold border-r border-blue-300">{{ t.keterangan }}</td>
+                        <td class="px-4 py-2 text-center text-white font-semibold border-r border-blue-300">{{ t.jenis|title }}</td>
+                        <td class="px-4 py-2 text-center text-white font-semibold border-r border-blue-300">{{ t.jumlah|floatformat:0 }}</td>
+                        <td class="px-4 py-2 text-center text-white font-semibold border-r border-blue-300">{{ t.tanggal|date:'d M Y' }}</td>
+                        <td class="px-4 py-2 text-center border-r border-blue-300">
+                            {% if bisa_edit %}
+                            <a href="{% url 'panitia:keuangan_edit' t.id %}" class="inline-flex items-center px-2 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 mr-1" title="Edit"><i class="fas fa-edit"></i></a>
+                            <a href="{% url 'panitia:keuangan_hapus' t.id %}" class="inline-flex items-center px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600" onclick="return confirm('Yakin ingin menghapus transaksi ini?');" title="Hapus"><i class="fas fa-trash"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-center text-white py-4">Belum ada transaksi.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="flex flex-col md:flex-row justify-end mt-4 gap-2">
+            <div class="py-2 px-6 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-lg shadow flex items-center gap-2 font-bold">Total Pemasukan: <span class="ml-2">{{ total_pemasukan|floatformat:0 }}</span></div>
+            <div class="py-2 px-6 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-lg shadow flex items-center gap-2 font-bold">Total Pengeluaran: <span class="ml-2">{{ total_pengeluaran|floatformat:0 }}</span></div>
+            <div class="py-2 px-6 bg-gradient-to-r from-blue-400 to-blue-600 text-white rounded-lg shadow flex items-center gap-2 font-bold">Total Saldo: <span class="ml-2">{{ total_saldo|floatformat:0 }}</span></div>
+        </div>
+
+        <!-- Tabel Pemasukan -->
+        <div class="mt-8">
+            <h3 class="text-xl font-bold text-green-300 mb-2">Tabel Pemasukan</h3>
+            <div class="overflow-x-auto relative">
+                <table class="min-w-max w-full rounded-xl shadow bg-white bg-opacity-30 backdrop-blur-md border border-green-200/30">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-green-200 bg-gradient-to-r from-green-200/60 to-blue-200/60 border-r border-green-300">No</th>
+                            <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-green-200 bg-gradient-to-r from-green-200/60 to-blue-200/60 border-r border-green-300">Keterangan</th>
+                            <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-green-200 bg-gradient-to-r from-green-200/60 to-blue-200/60 border-r border-green-300">Jumlah</th>
+                            <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-green-200 bg-gradient-to-r from-green-200/60 to-blue-200/60 border-r border-green-300">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-green-100">
+                        {% for t in pemasukan_list %}
+                        <tr class="hover:bg-green-200/40 transition">
+                            <td class="px-4 py-2 text-center text-white font-semibold border-r border-green-300">{{ forloop.counter }}</td>
+                            <td class="px-4 py-2 text-center text-white font-semibold border-r border-green-300">{{ t.keterangan }}</td>
+                            <td class="px-4 py-2 text-center text-white font-semibold border-r border-green-300">{{ t.jumlah|floatformat:0 }}</td>
+                            <td class="px-4 py-2 text-center text-white font-semibold border-r border-green-300">{{ t.tanggal|date:'d M Y' }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-white py-4">Belum ada pemasukan.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tabel Pengeluaran -->
+        <div class="mt-8">
+            <h3 class="text-xl font-bold text-red-300 mb-2">Tabel Pengeluaran</h3>
+            <div class="overflow-x-auto relative">
+                <table class="min-w-max w-full rounded-xl shadow bg-white bg-opacity-30 backdrop-blur-md border border-red-200/30">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-red-200 bg-gradient-to-r from-red-200/60 to-blue-200/60 border-r border-red-300">No</th>
+                            <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-red-200 bg-gradient-to-r from-red-200/60 to-blue-200/60 border-r border-red-300">Keterangan</th>
+                            <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-red-200 bg-gradient-to-r from-red-200/60 to-blue-200/60 border-r border-red-300">Jumlah</th>
+                            <th class="px-4 py-2 text-center text-xs font-bold text-white uppercase tracking-wider border-b border-red-200 bg-gradient-to-r from-red-200/60 to-blue-200/60 border-r border-red-300">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-red-100">
+                        {% for t in pengeluaran_list %}
+                        <tr class="hover:bg-red-200/40 transition">
+                            <td class="px-4 py-2 text-center text-white font-semibold border-r border-red-300">{{ forloop.counter }}</td>
+                            <td class="px-4 py-2 text-center text-white font-semibold border-r border-red-300">{{ t.keterangan }}</td>
+                            <td class="px-4 py-2 text-center text-white font-semibold border-r border-red-300">{{ t.jumlah|floatformat:0 }}</td>
+                            <td class="px-4 py-2 text-center text-white font-semibold border-r border-red-300">{{ t.tanggal|date:'d M Y' }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center text-white py-4">Belum ada pengeluaran.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    <!-- Tombol Download -->
+    <div class="flex flex-col md:flex-row justify-end mt-8 gap-2">
+        <a href="{% url 'panitia:keuangan_excel' %}" class="py-2 px-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center gap-2"><i class="fas fa-file-excel"></i> Download Excel</a>
+        <a href="{% url 'panitia:keuangan_pdf' %}" class="py-2 px-4 bg-gradient-to-r from-red-400 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 flex items-center gap-2"><i class="fas fa-file-pdf"></i> Download PDF</a>
+    </div>
+        <div class="w-full flex justify-start mt-8">
+            <a href="{% url 'main:home' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded shadow hover:bg-fuchsia-600 transition text-sm font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali
+            </a>
+        </div>
+    </div>
+</div>
+<script>
+function filterTable(colIdx, filterValue) {
+    var table = document.querySelector('table');
+    var rows = table.querySelectorAll('tbody tr');
+    filterValue = filterValue.toLowerCase();
+    rows.forEach(function(row) {
+        var cell = row.querySelectorAll('td')[colIdx];
+        if (!cell) return;
+        var text = cell.textContent.toLowerCase();
+        if (text.indexOf(filterValue) > -1 || filterValue === '') {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+document.getElementById('showTambahTransaksiBtn').onclick = function() {
+    document.getElementById('formTambahTransaksi').style.display = 'block';
+    this.style.display = 'none';
+};
+document.getElementById('batalTambahTransaksiBtn').onclick = function() {
+    document.getElementById('formTambahTransaksi').style.display = 'none';
+    document.getElementById('showTambahTransaksiBtn').style.display = 'inline-flex';
+};
+</script>
+{% endblock %}

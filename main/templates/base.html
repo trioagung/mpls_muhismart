@@ -1,0 +1,60 @@
+{% comment %} Base template for all pages, glassmorphism, blue-purple gradient, modern UI {% endcomment %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MPLS Muhismart{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', 'Montserrat', Arial, sans-serif;
+        }
+        .glass-card {
+            background: rgba(255,255,255,0.13);
+            backdrop-filter: blur(12px);
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+        }
+        .glass-table {
+            background: rgba(255,255,255,0.10);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+        }
+        .btn-main {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: background 0.3s, color 0.3s;
+        }
+        .btn-green {
+            background: #4caf50; color: #fff;
+        }
+        .btn-blue {
+            background: #2196f3; color: #fff;
+        }
+        .btn-white {
+            background: #fff; color: #2575fc;
+        }
+        .btn-white:hover {
+            background: #eeeeee;
+        }
+        .btn-small {
+            font-size: 0.85rem; padding: 6px 12px;
+        }
+        .animate-fade-in { animation: fade-in 1s ease; }
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .backdrop-blur-lg { backdrop-filter: blur(16px); }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gradient-to-r from-[#6a11cb] to-[#2575fc] min-h-screen">
+    <!-- Logout button dihapus, hanya tampil di home -->
+    {% block content %}{% endblock %}
+</body>
+</html>

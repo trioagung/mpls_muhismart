@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-4xl">
+        <h2 class="text-3xl font-bold text-center text-white mb-6 animate-fade-in flex items-center justify-center gap-2">
+            <i class="fas fa-boxes-stacked text-green-300"></i> Daftar Logistik
+        </h2>
+        <!-- Tombol Kembali dipindah ke bawah kiri -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+            <!-- Logistik Pribadi -->
+            <div class="relative bg-white/20 bg-clip-padding backdrop-blur-xl rounded-xl shadow-lg p-6 border-t-4 border-blue-400 flex flex-col glass-card">
+                <h3 class="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2"><i class="fas fa-user"></i> Logistik Pribadi</h3>
+                <ul class="flex flex-col gap-2 mb-4">
+                    {% for item in logistik_pribadi %}
+                    <li class="flex items-center justify-between bg-blue-100/10 rounded px-3 py-2">
+                        <span class="text-white" style="white-space: pre-line;">{{ item.nama }}</span>
+                        <div class="flex gap-2">
+                            {% if bisa_edit %}
+                            <a href="{% url 'panitia:edit_logistik' item.id %}?jenis=pribadi" class="px-2 py-1 bg-yellow-400/90 text-white rounded shadow hover:bg-yellow-500 flex items-center gap-1"><i class="fas fa-edit"></i></a>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="hapus_pribadi" value="{{ item.id }}">
+                                <button type="submit" class="px-2 py-1 bg-red-500/90 text-white rounded shadow hover:bg-red-600 flex items-center gap-1"><i class="fas fa-trash"></i></button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="text-white">Belum ada logistik pribadi.</li>
+                    {% endfor %}
+                </ul>
+                {% if bisa_edit %}
+                <button onclick="document.getElementById('modal-tambah-pribadi').classList.remove('hidden')" class="w-full py-2 px-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Tambah</button>
+                {% endif %}
+            </div>
+            <!-- Logistik Kelompok -->
+            <div class="relative bg-white/20 bg-clip-padding backdrop-blur-xl rounded-xl shadow-lg p-6 border-t-4 border-green-400 flex flex-col glass-card">
+                <h3 class="text-xl font-bold text-green-500 mb-4 flex items-center gap-2"><i class="fas fa-users"></i> Logistik Kelompok</h3>
+                <ul class="flex flex-col gap-2 mb-4">
+                    {% for item in logistik_kelompok %}
+                    <li class="flex items-center justify-between bg-green-100/10 rounded px-3 py-2">
+                        <span class="text-white" style="white-space: pre-line;">{{ item.nama }}</span>
+                        <div class="flex gap-2">
+                            {% if bisa_edit %}
+                            <a href="{% url 'panitia:edit_logistik' item.id %}?jenis=kelompok" class="px-2 py-1 bg-yellow-400/90 text-white rounded shadow hover:bg-yellow-500 flex items-center gap-1"><i class="fas fa-edit"></i></a>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="hapus_kelompok" value="{{ item.id }}">
+                                <button type="submit" class="px-2 py-1 bg-red-500/90 text-white rounded shadow hover:bg-red-600 flex items-center gap-1"><i class="fas fa-trash"></i></button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="text-white">Belum ada logistik kelompok.</li>
+                    {% endfor %}
+                </ul>
+                {% if bisa_edit %}
+                <button onclick="document.getElementById('modal-tambah-kelompok').classList.remove('hidden')" class="w-full py-2 px-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Tambah</button>
+                {% endif %}
+            </div>
+            <!-- Barang Larangan -->
+            <div class="relative bg-white/20 bg-clip-padding backdrop-blur-xl rounded-xl shadow-lg p-6 border-t-4 border-red-500 flex flex-col glass-card">
+                <h3 class="text-xl font-bold text-red-500 mb-4 flex items-center gap-2"><i class="fas fa-ban"></i> Barang Larangan</h3>
+                <ul class="flex flex-col gap-2 mb-4">
+                    {% for item in barang_larangan %}
+                    <li class="flex items-center justify-between bg-red-100/10 rounded px-3 py-2">
+                        <span class="text-white">{{ item }}</span>
+                        <div class="flex gap-2">
+                            {% if bisa_edit %}
+                            <a href="{% url 'panitia:edit_larangan' item.id %}" class="px-2 py-1 bg-yellow-400/90 text-white rounded shadow hover:bg-yellow-500 flex items-center gap-1"><i class="fas fa-edit"></i></a>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="hapus_larangan" value="{{ item.id }}">
+                                <button type="submit" class="px-2 py-1 bg-red-500/90 text-white rounded shadow hover:bg-red-600 flex items-center gap-1"><i class="fas fa-trash"></i></button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="text-white">Belum ada barang larangan.</li>
+                    {% endfor %}
+                </ul>
+                {% if bisa_edit %}
+                <button onclick="document.getElementById('modal-tambah-larangan').classList.remove('hidden')" class="w-full py-2 px-4 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Tambah</button>
+                {% endif %}
+            </div>
+        </div>
+        <div class="w-full flex justify-start mt-8">
+            <a href="{% url 'main:home' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded shadow hover:bg-fuchsia-600 transition text-sm font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Tambah Logistik Pribadi -->
+<div id="modal-tambah-pribadi" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl shadow-lg p-8 w-full max-w-md relative">
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <textarea name="logistik_pribadi" placeholder="Nama logistik pribadi..." rows="4" class="w-full px-3 py-2 rounded border border-blue-300 focus:outline-none resize-y"></textarea>
+            <div class="flex gap-2">
+                <button type="submit" name="tambah_pribadi" class="flex-1 py-2 px-4 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-lg shadow hover:bg-green-700 flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Tambah</button>
+                <button type="button" onclick="document.getElementById('modal-tambah-pribadi').classList.add('hidden')" class="flex-1 py-2 px-4 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-lg shadow hover:bg-red-600 flex items-center justify-center gap-2"><i class="fas fa-times"></i> Batal</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Modal Tambah Logistik Kelompok -->
+<div id="modal-tambah-kelompok" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl shadow-lg p-8 w-full max-w-md relative">
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <textarea name="logistik_kelompok" placeholder="Nama logistik kelompok..." rows="4" class="w-full px-3 py-2 rounded border border-green-300 focus:outline-none resize-y"></textarea>
+            <div class="flex gap-2">
+                <button type="submit" name="tambah_kelompok" class="flex-1 py-2 px-4 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-lg shadow hover:bg-green-700 flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Tambah</button>
+                <button type="button" onclick="document.getElementById('modal-tambah-kelompok').classList.add('hidden')" class="flex-1 py-2 px-4 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-lg shadow hover:bg-red-600 flex items-center justify-center gap-2"><i class="fas fa-times"></i> Batal</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- Modal Tambah Barang Larangan -->
+<div id="modal-tambah-larangan" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl shadow-lg p-8 w-full max-w-md relative">
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <input type="text" name="barang_larangan" placeholder="Nama barang larangan..." class="w-full px-3 py-2 rounded border border-red-300 focus:outline-none">
+            <div class="flex gap-2">
+                <button type="submit" name="tambah_larangan" class="flex-1 py-2 px-4 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-lg shadow hover:bg-green-700 flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Tambah</button>
+                <button type="button" onclick="document.getElementById('modal-tambah-larangan').classList.add('hidden')" class="flex-1 py-2 px-4 bg-gradient-to-r from-red-400 to-red-600 text-white rounded-lg shadow hover:bg-red-600 flex items-center justify-center gap-2"><i class="fas fa-times"></i> Batal</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

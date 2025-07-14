@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl shadow-lg p-8 w-full max-w-lg">
+        <h2 class="text-2xl font-bold text-center text-white mb-4 animate-fade-in">Tugas {{ jabatan }}</h2>
+        <div class="bg-white bg-opacity-60 rounded-lg p-4 text-indigo-900 shadow-md animate-fade-in-up mb-6">
+            <h3 class="font-bold text-lg mb-2 text-blue-700">Tugas Umum</h3>
+            <ul class="list-disc ml-6">
+                {% for tugas in tugas_umum %}
+                    <li>{{ tugas }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="bg-white bg-opacity-60 rounded-lg p-4 text-indigo-900 shadow-md animate-fade-in-up">
+            <h3 class="font-bold text-lg mb-2 text-purple-700">Tugas Khusus</h3>
+            <form method="post" class="flex gap-2 mb-4">
+                {% csrf_token %}
+                <input type="text" name="tugas_khusus" placeholder="Tambah tugas khusus..." class="flex-1 px-3 py-1 rounded border border-purple-300 focus:outline-none">
+                <button type="submit" name="tambah_tugas" class="px-4 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Tambah</button>
+            </form>
+            <ul class="space-y-2">
+                {% for tugas in tugas_khusus %}
+                <li class="flex items-center gap-2">
+                    <form method="post" style="display:inline;" class="mr-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="toggle_selesai" value="{{ forloop.counter0 }}">
+                        <input type="checkbox" onchange="this.form.submit()" {% if tugas.selesai %}checked{% endif %}>
+                    </form>
+                    <span class="flex-1 {% if tugas.selesai %}line-through text-gray-400{% endif %}">{{ tugas.tugas }}</span>
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="hapus_tugas" value="{{ forloop.counter0 }}">
+                        <button type="submit" class="text-red-500 hover:text-red-700 font-bold text-lg">&times;</button>
+                    </form>
+                </li>
+                {% empty %}
+                <li class="text-gray-500">Belum ada tugas khusus.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="w-full flex justify-start mt-8">
+    <a href="{% url 'panitia:petugas_upacara' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded shadow hover:bg-fuchsia-600 transition text-sm font-semibold">
+        <i class="fas fa-arrow-left mr-2"></i> Kembali
+    </a>
+</div>
+    </div>
+</div>
+{% endblock %}

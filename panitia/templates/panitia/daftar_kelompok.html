@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-4xl">
+        <h2 class="text-3xl font-bold text-center text-white mb-6 animate-fade-in flex items-center justify-center gap-2">
+            <i class="fas fa-list-ol text-indigo-300"></i> Daftar Kelompok
+        </h2>
+        <!-- Tombol Kembali dipindah ke bawah kiri -->
+        <div class="flex justify-end mb-4">
+            {% if bisa_edit %}
+            <button onclick="document.getElementById('modal-tambah-kelompok').classList.remove('hidden')" class="px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">+ Tambah Kelompok</button>
+            {% endif %}
+        </div>
+        <div class="flex flex-col items-center gap-8 w-full">
+            {% for row in kelompok_list %}
+            <div class="bg-gradient-to-br from-blue-400/60 via-indigo-400/50 to-purple-500/60 bg-opacity-60 backdrop-blur-lg border border-blue-200/30 rounded-xl p-6 flex flex-col items-center shadow-md hover:scale-105 transition-transform max-w-md min-w-[280px] flex-1 w-full">
+                <span class="text-xl font-bold text-white drop-shadow mb-2">{{ row.nama }}</span>
+                <span class="text-base font-semibold text-white mb-2">Ketua: {{ row.ketua|default:'-' }}</span>
+                <div class="flex gap-2 mt-2">
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="detail_kelompok" value="{{ row.nama }}">
+                        <button type="submit" class="px-3 py-1 text-sm bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition flex items-center gap-1"><i class="fas fa-info-circle"></i> Detail</button>
+                    </form>
+                    {% if bisa_edit %}
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="edit_kelompok" value="{{ row.nama }}">
+                        <button type="submit" class="px-3 py-1 text-sm bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-full shadow hover:bg-yellow-600 flex items-center gap-1"><i class="fas fa-edit"></i> Edit</button>
+                    </form>
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="hapus_kelompok" value="{{ row.nama }}">
+                        <button type="submit" class="px-3 py-1 text-sm bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full shadow hover:bg-pink-600 flex items-center gap-1"><i class="fas fa-trash"></i> Hapus</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-white py-4">Belum ada kelompok.</div>
+            {% endfor %}
+        </div>
+        <div class="w-full flex justify-start mt-8">
+            <a href="{% url 'main:home' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded shadow hover:bg-fuchsia-600 transition text-sm font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali
+            </a>
+        </div>
+    </div>
+</div>
+<!-- Modal Tambah Kelompok -->
+<div id="modal-tambah-kelompok" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-xl shadow-lg p-8 w-full max-w-lg relative">
+        <button onclick="document.getElementById('modal-tambah-kelompok').classList.add('hidden')" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-xl">&times;</button>
+        <h3 class="text-2xl font-bold text-center text-white mb-6 animate-fade-in">Tambah Kelompok</h3>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="nama_kelompok" class="block text-white font-semibold mb-1">Nama Kelompok</label>
+                <input type="text" name="nama_kelompok" id="nama_kelompok" class="w-full px-3 py-2 rounded-lg border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+            </div>
+            <div>
+                <label for="ketua" class="block text-white font-semibold mb-1">Ketua</label>
+                <input type="text" name="ketua" id="ketua" class="w-full px-3 py-2 rounded-lg border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+            </div>
+            <div>
+                <label for="koordinator" class="block text-white font-semibold mb-1">Koordinator</label>
+                <input type="text" name="koordinator" id="koordinator" class="w-full px-3 py-2 rounded-lg border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Nama koordinator (opsional)">
+            </div>
+            <div>
+                <label for="anggota" class="block text-white font-semibold mb-1">Anggota</label>
+                <textarea name="anggota" id="anggota" rows="4" class="w-full px-3 py-2 rounded-lg border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Satu nama anggota per baris"></textarea>
+            </div>
+            <button type="submit" name="tambah_kelompok" value="1" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Buat Kelompok</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

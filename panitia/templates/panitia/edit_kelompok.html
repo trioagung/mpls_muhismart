@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-lg">
+        <h2 class="text-2xl font-bold text-center text-white mb-6 animate-fade-in">Edit Kelompok</h2>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label for="nama_kelompok" class="block text-white font-semibold mb-1">Nama Kelompok</label>
+                <input type="text" name="nama_kelompok" id="nama_kelompok" value="{{ kelompok.nama }}" class="w-full px-3 py-2 rounded-lg border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+            </div>
+            <div>
+                <label for="ketua" class="block text-white font-semibold mb-1">Ketua</label>
+                <input type="text" name="ketua" id="ketua" value="{{ kelompok.ketua }}" class="w-full px-3 py-2 rounded-lg border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400" required>
+            </div>
+            <div>
+                <label for="koordinator" class="block text-white font-semibold mb-1">Koordinator</label>
+                <input type="text" name="koordinator" id="koordinator" value="{% for k in koordinator_list %}{{ k.nama }}{% if not forloop.last %}, {% endif %}{% endfor %}" class="w-full px-3 py-2 rounded-lg border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Nama koordinator (opsional)">
+            </div>
+            <div>
+                <label for="anggota" class="block text-white font-semibold mb-1">Anggota</label>
+                <textarea name="anggota" id="anggota" rows="4" class="w-full px-3 py-2 rounded-lg border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Satu nama anggota per baris">{% for a in anggota_list %}{{ a.nama }}{% if not forloop.last %}
+{% endif %}{% endfor %}</textarea>
+            </div>
+            <input type="hidden" name="edit_kelompok" value="{{ kelompok.nama }}">
+            <button type="submit" name="simpan_edit" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Simpan</button>
+        </form>
+        <a href="{% url 'panitia:daftar_kelompok' %}" class="mt-6 inline-block px-4 py-2 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-full shadow hover:bg-pink-600 transition">Batal</a>
+    </div>
+</div>
+{% endblock %}

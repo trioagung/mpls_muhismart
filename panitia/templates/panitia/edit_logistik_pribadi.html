@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <h2 class="text-2xl font-bold text-center text-white mb-6 animate-fade-in flex items-center justify-center gap-2">
+            <i class="fas fa-boxes-stacked text-green-300"></i> Edit Logistik Pribadi
+        </h2>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <textarea name="nama" rows="4" class="w-full px-3 py-2 rounded border border-blue-300 focus:outline-none resize-y">{{ edit.nama }}</textarea>
+            <input type="number" name="jumlah" value="{{ edit.jumlah }}" min="1" class="w-full px-3 py-2 rounded border border-blue-300 focus:outline-none" placeholder="Jumlah barang...">
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 py-2 px-4 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white rounded-lg shadow hover:bg-yellow-700 flex items-center justify-center gap-2"><i class="fas fa-save"></i> Simpan</button>
+                <button type="submit" name="batal" class="flex-1 py-2 px-4 bg-gradient-to-r from-gray-400 to-gray-600 text-white rounded-lg shadow hover:bg-gray-700 flex items-center justify-center gap-2"><i class="fas fa-times"></i> Batal</button>
+            </div>
+        </form>
+        <div class="w-full flex justify-start mt-8">
+            <a href="{% url 'panitia:logistik' %}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white rounded shadow hover:bg-fuchsia-600 transition text-sm font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

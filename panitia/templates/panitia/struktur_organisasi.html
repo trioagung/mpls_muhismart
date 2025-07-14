@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 py-8">
+    <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-4xl">
+        <h2 class="text-3xl font-bold text-center text-white mb-1 animate-fade-in flex items-center justify-center gap-2"><i class="fas fa-users text-indigo-200"></i> Struktur Kepanitiaan</h2>
+        <h2 class="text-3xl font-bold text-center text-white mb-6 animate-fade-in">Kemah MPLS 2025</h2>
+        {% if user.is_superuser %}
+        <div class="flex justify-end mb-4">
+            <a href="{% url 'panitia:tambah_panitia' %}" class="px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">+ Tambah Panitia</a>
+        </div>
+        {% endif %}
+        <div class="flex flex-col items-center gap-8 w-full">
+            {% for kedudukan, daftar in piramida.items %}
+            <div class="flex flex-row flex-wrap justify-center gap-6 w-full">
+                {% for item in daftar %}
+                <div class="bg-gradient-to-br from-blue-400/60 via-indigo-400/50 to-purple-500/60 bg-opacity-60 backdrop-blur-lg border border-blue-200/30 rounded-xl p-6 flex flex-col items-center shadow-md hover:scale-105 transition-transform max-w-md min-w-[280px] flex-1">
+                    <span class="text-xl font-bold text-white drop-shadow mb-2">{{ item.nama }}</span>
+                    {% if item.anggota %}
+                        <ul class="mb-2 flex flex-col gap-1 w-full items-center">
+                            {% for anggota in item.anggota %}
+                                <li class="block text-base font-normal text-white">{{ anggota }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <div class="flex gap-2 mt-2">
+                        <a href="{% url 'panitia:tugas_panitia' item.nama %}" class="px-3 py-1 text-sm bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition flex items-center gap-1">
+                            <i class="fas fa-tasks"></i> Lihat Tugas
+                        </a>
+                        {% if user.is_superuser %}
+                        <form method="post" action="{% url 'panitia:hapus_panitia' item.nama %}" onsubmit="return confirm('Yakin ingin menghapus panitia ini?');">
+                            {% csrf_token %}
+                            <button type="submit" class="px-3 py-1 text-sm bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full shadow hover:bg-pink-600 flex items-center gap-1">
+                                <i class="fas fa-trash"></i> Hapus Panitia
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        <div class="mt-12 w-full flex justify-center">
+            <div class="w-full max-w-3xl">
+                <div class="flex flex-col items-center mb-4">
+                    <h2 class="text-3xl font-bold text-center text-white animate-fade-in flex items-center justify-center gap-2"><i class="fas fa-user-tie text-green-300"></i> Koordinator Kelompok</h2>
+                {% if user.is_superuser %}
+                <button onclick="document.getElementById('modal-koordinator').classList.remove('hidden')" class="mt-4 px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">+ Tambah Koordinator Kelompok</button>
+                {% endif %}
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-gradient-to-r from-blue-400/60 via-indigo-400/50 to-purple-500/60 bg-opacity-70 rounded-2xl shadow text-center">
+                    <thead>
+                        <tr class="bg-indigo-900 text-white rounded-t-2xl">
+                            <th class="px-4 py-2 font-bold border-b border-white/30">Kelompok</th>
+                            <th class="px-4 py-2 font-bold border-b border-white/30">Nama Koordinator</th>
+                            <th class="px-4 py-2 font-bold border-b border-white/30">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in koordinator_kelompok %}
+                        <tr class="border-b border-white/20">
+                            <td class="px-4 py-2 align-middle text-white">{{ row.kelompok }}</td>
+                            <td class="px-4 py-2 align-middle">
+                                <ul class="flex flex-col items-center">
+                                    {% for nama in row.koordinator %}
+                                    <li class="text-white">{{ nama }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td class="px-4 py-2 align-middle">
+                                {% if user.is_superuser %}
+                                <div class="flex justify-center gap-2">
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="edit_koordinator" value="{{ forloop.counter0 }}">
+                                        <button type="submit" class="px-3 py-1 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Ubah</button>
+                                    </form>
+                                    <form method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="hapus_koordinator" value="{{ forloop.counter0 }}">
+                                        <button type="submit" class="px-3 py-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg shadow hover:bg-pink-600 transition">Hapus</button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-center mt-8">
+                <button type="button" onclick="showTugasModal('Koordinator Kelompok')" class="px-6 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition text-lg font-bold">Lihat Tugas Koordinator</button>
+            </div>
+            <!-- Modal Tugas Koordinator Kelompok -->
+            <div id="modal-tugas-koordinator" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-xl p-8 w-full max-w-md relative">
+                    <button onclick="document.getElementById('modal-tugas-koordinator').classList.add('hidden')" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+                    <div class="text-center mb-4">
+                        <h3 class="text-2xl font-bold text-indigo-800 mb-2" id="judul-tugas-modal">Tugas Koordinator</h3>
+                    </div>
+                    <div class="bg-white bg-opacity-60 rounded-lg p-4 text-indigo-900 shadow-md animate-fade-in-up mb-6">
+                        <h4 class="font-bold text-lg mb-2 text-blue-700">Tugas Umum Koordinator</h4>
+                        <ul class="list-disc ml-6" id="tugas-umum-list">
+                            <li>Mengkoordinasi kelompok</li>
+                            <li>Membantu kelancaran diskusi kelompok</li>
+                            <li>Mengatur jadwal kegiatan kelompok</li>
+                            <li>Menjadi penghubung antara kelompok dan panitia</li>
+                            <li>Membuat laporan hasil kegiatan kelompok</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white bg-opacity-60 rounded-lg p-4 text-indigo-900 shadow-md animate-fade-in-up">
+                        <h4 class="font-bold text-lg mb-2 text-purple-700">Tugas Khusus Koordinator</h4>
+                        <form class="flex gap-2 mb-4">
+                            <input type="text" name="tugas_khusus" placeholder="Tambah tugas khusus..." class="flex-1 px-3 py-1 rounded border border-purple-300 focus:outline-none">
+                            <button type="button" class="px-4 py-1 bg-gradient-to-r from-blue-500 ke-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Tambah</button>
+                        </form>
+                        <ul class="space-y-2" id="tugas-khusus-list">
+                            <li class="flex items-center gap-2">
+                                <input type="checkbox">
+                                <span class="flex-1">Contoh tugas khusus</span>
+                                <button class="text-red-500 hover:text-red-700 font-bold text-lg">&times;</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <script>
+            function showTugasModal(kelompok) {
+                document.getElementById('modal-tugas-koordinator').classList.remove('hidden');
+                document.getElementById('judul-tugas-modal').innerText = 'Tugas ' + kelompok;
+                // TODO: load tugas khusus dinamis jika sudah backend
+            }
+            </script>
+            <!-- Modal Tambah/Edit Koordinator Kelompok -->
+            {% if user.is_superuser %}
+            <div id="modal-koordinator" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-xl p-8 w-full max-w-md relative">
+                    <button onclick="document.getElementById('modal-koordinator').classList.add('hidden')" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <label class="block font-semibold mb-1">Nama Kelompok</label>
+                            <input type="text" name="kelompok" class="w-full px-3 py-2 rounded border border-blue-300" required placeholder="Masukkan nama kelompok">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Nama Koordinator (satu per baris)</label>
+                            <textarea name="koordinator" rows="3" class="w-full px-3 py-2 rounded border border-blue-300" placeholder="Masukkan satu nama koordinator per baris" required></textarea>
+                        </div>
+                        <button type="submit" name="tambah_koordinator" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Tambah Koordinator</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+            <!-- Modal Edit Koordinator Kelompok (jika diperlukan) -->
+            {% if user.is_superuser and edit_idx is not None %}
+            {% with row=koordinator_kelompok|slice:edit_idx|first %}
+            <div id="modal-koordinator-edit" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                <div class="bg-white rounded-xl p-8 w-full max-w-md relative">
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        <button onclick="document.getElementById('modal-koordinator-edit').classList.add('hidden');return false;" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+                        <div>
+                            <label class="block font-semibold mb-1">Nama Kelompok</label>
+                            <input type="text" name="kelompok_edit" class="w-full px-3 py-2 rounded border border-blue-300" value="{{ row.kelompok }}" required placeholder="Masukkan nama kelompok">
+                        </div>
+                        <div>
+                            <label class="block font-semibold mb-1">Nama Koordinator (satu per baris)</label>
+                            <textarea name="koordinator_edit" rows="3" class="w-full px-3 py-2 rounded border border-blue-300" required placeholder="Masukkan satu nama koordinator per baris">{% for nama in row.koordinator %}{{ nama }}
+{% endfor %}</textarea>
+                        </div>
+                        <input type="hidden" name="edit_koordinator" value="{{ edit_idx }}">
+                        <button type="submit" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Simpan Perubahan</button>
+                    </form>
+                </div>
+            </div>
+            {% endwith %}
+            {% endif %}
+        </div>
+    </div>
+    <div class="flex flex-row gap-2 items-center justify-center mt-8">
+    </div>
+        <div class="mt-8 flex w-full justify-start">
+            <a href="{% url 'main:home' %}" class="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center gap-2 text-sm">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+</div>
+{% endblock %}
