@@ -38,10 +38,20 @@ MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     # Gunakan PostgreSQL dari environment (Railway, Heroku, dll)
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
-    }
+    try:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+        }
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        # Fallback ke SQLite jika PostgreSQL gagal
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 else:
     # Fallback ke SQLite untuk development/testing
     DATABASES = {
@@ -55,13 +65,14 @@ else:
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Hanya include jika direktori static ada
+# Static files configuration
 STATICFILES_DIRS = []
-if (BASE_DIR / "static").exists():
-    STATICFILES_DIRS = [BASE_DIR / "static"]
+static_dir = BASE_DIR / "static"
+if static_dir.exists():
+    STATICFILES_DIRS = [static_dir]
 
 # WhiteNoise settings untuk static files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
