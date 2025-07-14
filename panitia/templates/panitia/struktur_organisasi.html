@@ -4,7 +4,7 @@
     <div class="bg-white bg-opacity-10 backdrop-blur-xl border border-blue-200/40 border-t-2 border-l-2 border-opacity-30 rounded-2xl shadow-2xl p-8 w-full max-w-4xl">
         <h2 class="text-3xl font-bold text-center text-white mb-1 animate-fade-in flex items-center justify-center gap-2"><i class="fas fa-users text-indigo-200"></i> Struktur Kepanitiaan</h2>
         <h2 class="text-3xl font-bold text-center text-white mb-6 animate-fade-in">Kemah MPLS 2025</h2>
-        {% if user.is_superuser %}
+        {% if bisa_edit %}
         <div class="flex justify-end mb-4">
             <a href="{% url 'panitia:tambah_panitia' %}" class="px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">+ Tambah Panitia</a>
         </div>
@@ -26,7 +26,7 @@
                         <a href="{% url 'panitia:tugas_panitia' item.nama %}" class="px-3 py-1 text-sm bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition flex items-center gap-1">
                             <i class="fas fa-tasks"></i> Lihat Tugas
                         </a>
-                        {% if user.is_superuser %}
+                        {% if bisa_edit %}
                         <form method="post" action="{% url 'panitia:hapus_panitia' item.nama %}" onsubmit="return confirm('Yakin ingin menghapus panitia ini?');">
                             {% csrf_token %}
                             <button type="submit" class="px-3 py-1 text-sm bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full shadow hover:bg-pink-600 flex items-center gap-1">
@@ -44,7 +44,7 @@
             <div class="w-full max-w-3xl">
                 <div class="flex flex-col items-center mb-4">
                     <h2 class="text-3xl font-bold text-center text-white animate-fade-in flex items-center justify-center gap-2"><i class="fas fa-user-tie text-green-300"></i> Koordinator Kelompok</h2>
-                {% if user.is_superuser %}
+                {% if bisa_edit %}
                 <button onclick="document.getElementById('modal-koordinator').classList.remove('hidden')" class="mt-4 px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">+ Tambah Koordinator Kelompok</button>
                 {% endif %}
                 </div>
@@ -69,7 +69,7 @@
                                 </ul>
                             </td>
                             <td class="px-4 py-2 align-middle">
-                                {% if user.is_superuser %}
+                                {% if bisa_edit %}
                                 <div class="flex justify-center gap-2">
                                     <form method="post" style="display:inline;">
                                         {% csrf_token %}
@@ -133,7 +133,7 @@
             }
             </script>
             <!-- Modal Tambah/Edit Koordinator Kelompok -->
-            {% if user.is_superuser %}
+            {% if bisa_edit %}
             <div id="modal-koordinator" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
                 <div class="bg-white rounded-xl p-8 w-full max-w-md relative">
                     <button onclick="document.getElementById('modal-koordinator').classList.add('hidden')" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
@@ -153,7 +153,7 @@
             </div>
             {% endif %}
             <!-- Modal Edit Koordinator Kelompok (jika diperlukan) -->
-            {% if user.is_superuser and edit_idx is not None %}
+            {% if bisa_edit and edit_idx is not None %}
             {% with row=koordinator_kelompok|slice:edit_idx|first %}
             <div id="modal-koordinator-edit" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                 <div class="bg-white rounded-xl p-8 w-full max-w-md relative">
