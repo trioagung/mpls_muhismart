@@ -167,3 +167,21 @@ class KoordinatorKelompok(models.Model):
         ordering = ['kelompok']
         verbose_name = "Koordinator Kelompok"
         verbose_name_plural = "Koordinator Kelompok"
+
+class Jadwal(models.Model):
+    HARI_CHOICES = (
+        (1, 'Hari 1'),
+        (2, 'Hari 2'),
+    )
+    hari = models.IntegerField(choices=HARI_CHOICES)
+    waktu = models.CharField(max_length=50)
+    plan_a = models.TextField()
+    plan_b = models.TextField()
+    urutan = models.PositiveIntegerField(default=0)
+    
+    class Meta:
+        ordering = ['hari', 'urutan']
+        unique_together = ['hari', 'urutan']
+    
+    def __str__(self):
+        return f"Hari {self.hari} - {self.waktu}"
