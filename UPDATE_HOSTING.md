@@ -45,5 +45,14 @@
 - ✅ Profile foto tampil persegi panjang untuk PNG
 - ✅ Sistem permission case-insensitive (Windows ↔ Linux)
 - ✅ Media files handling diperbaiki
+- ✅ **JADWAL KELOMPOK:** Sekarang tersimpan permanen di database (tidak hilang saat logout/login)
+- ✅ **MULTI-USER SYNC:** Semua user melihat jadwal yang sama secara real-time
+
+### Update Terbaru (16 Juli 2025):
+**JADWAL KELOMPOK FIXED!** 
+- Data jadwal sekarang tersimpan di database, bukan session
+- Tidak akan hilang saat logout/login
+- Semua user melihat perubahan secara langsung
+- Data permanen dan aman
 
 Proyek sudah dibersihkan dan siap untuk update hosting yang sudah ada.
