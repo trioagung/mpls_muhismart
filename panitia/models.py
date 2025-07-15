@@ -150,3 +150,20 @@ class TugasUpacara(models.Model):
 
     def __str__(self):
         return f"{self.jabatan}: {self.tugas[:30]}{'...' if len(self.tugas) > 30 else ''}"
+
+class KoordinatorKelompok(models.Model):
+    kelompok = models.CharField(max_length=100)
+    koordinator = models.TextField()  # Simpan nama koordinator, dipisah newline
+    waktu = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.kelompok}"
+    
+    def get_koordinator_list(self):
+        """Return list koordinator dari field koordinator yang dipisah newline"""
+        return [k.strip() for k in self.koordinator.splitlines() if k.strip()]
+    
+    class Meta:
+        ordering = ['kelompok']
+        verbose_name = "Koordinator Kelompok"
+        verbose_name_plural = "Koordinator Kelompok"

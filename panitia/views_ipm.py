@@ -51,37 +51,63 @@ def panitia_pelaksana(request):
 @login_required
 def koordinator_kelompok(request):
     from .helpers import get_akses
+    from .models import KoordinatorKelompok
+    
     bisa_lihat, bisa_edit = get_akses(request.user, 'Koordinator Kelompok')
     if not bisa_lihat:
         return render(request, 'panitia/no_access.html', {'menu': 'Koordinator Kelompok'})
     if request.method == 'POST' and not bisa_edit:
         return render(request, 'panitia/no_access.html', {'menu': 'Koordinator Kelompok'})
-    if 'koordinator_kelompok_ipm' not in request.session:
-        request.session['koordinator_kelompok_ipm'] = []
-    data = request.session['koordinator_kelompok_ipm']
+    
+    # Ambil data dari database
+    koordinator_list = KoordinatorKelompok.objects.all().order_by('kelompok')
+    data = []
+    for k in koordinator_list:
+        data.append({
+            "id": k.id,
+            "kelompok": k.kelompok, 
+            "koordinator": k.get_koordinator_list()
+        })
+    
     if request.method == 'POST' and bisa_edit:
         if 'tambah_koordinator' in request.POST:
             kelompok = request.POST.get('kelompok', '').strip()
-            koordinator = [k.strip() for k in request.POST.get('koordinator', '').splitlines() if k.strip()]
-            if kelompok and koordinator:
-                data.append({"kelompok": kelompok, "koordinator": koordinator})
-                request.session['koordinator_kelompok_ipm'] = data
+            koordinator_input = request.POST.get('koordinator', '').strip()
+            if kelompok and koordinator_input:
+                KoordinatorKelompok.objects.create(
+                    kelompok=kelompok,
+                    koordinator=koordinator_input
+                )
+                return redirect('panitia:koordinator_kelompok')
+                
         elif 'hapus_koordinator' in request.POST:
             idx = int(request.POST.get('hapus_koordinator'))
             if 0 <= idx < len(data):
-                data.pop(idx)
-                request.session['koordinator_kelompok_ipm'] = data
+                koordinator_id = data[idx]['id']
+                KoordinatorKelompok.objects.filter(id=koordinator_id).delete()
+                return redirect('panitia:koordinator_kelompok')
+                
         elif 'edit_koordinator' in request.POST:
-            idx = int(request.POST.get('edit_koordinator'))
-            kelompok = request.POST.get('kelompok_edit', '').strip()
-            koordinator = [k.strip() for k in request.POST.get('koordinator_edit', '').splitlines() if k.strip()]
-            if kelompok and koordinator and 0 <= idx < len(data):
-                data[idx] = {"kelompok": kelompok, "koordinator": koordinator}
-                request.session['koordinator_kelompok_ipm'] = data
+            # Check if this is submit or just showing edit form
+            if 'kelompok_edit' in request.POST and 'koordinator_edit' in request.POST:
+                # This is submit
+                idx = int(request.POST.get('edit_koordinator'))
+                if 0 <= idx < len(data):
+                    koordinator_id = data[idx]['id']
+                    kelompok = request.POST.get('kelompok_edit', '').strip()
+                    koordinator_input = request.POST.get('koordinator_edit', '').strip()
+                    if kelompok and koordinator_input:
+                        k = KoordinatorKelompok.objects.get(id=koordinator_id)
+                        k.kelompok = kelompok
+                        k.koordinator = koordinator_input
+                        k.save()
+                        return redirect('panitia:koordinator_kelompok')
+    
     edit_idx = None
     if request.method == 'POST':
         if 'edit_koordinator' in request.POST and not ('kelompok_edit' in request.POST or 'koordinator_edit' in request.POST):
             edit_idx = request.POST.get('edit_koordinator')
+    
     return render(request, 'panitia/koordinator_kelompok.html', {
         "koordinator_kelompok": data,
         "edit_idx": edit_idx,

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Keuangan, Kelompok, Anggota, Agenda, Absensi, AksesMenu, PanitiaPelaksana, TugasUpacara, PanitiaUtama, PetugasUpacara
+from .models import Keuangan, Kelompok, Anggota, Agenda, Absensi, AksesMenu, PanitiaPelaksana, TugasUpacara, PanitiaUtama, PetugasUpacara, KoordinatorKelompok
 
 admin.site.register(Keuangan)
 admin.site.register(Kelompok)
@@ -11,3 +11,4 @@ admin.site.register(PanitiaPelaksana)
 admin.site.register(PanitiaUtama)
 admin.site.register(PetugasUpacara)
 admin.site.register(TugasUpacara)
+admin.site.register(KoordinatorKelompok)
