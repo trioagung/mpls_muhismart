@@ -44,11 +44,25 @@
             <div class="w-full max-w-3xl">
                 <div class="flex flex-col items-center mb-4">
                     <h2 class="text-3xl font-bold text-center text-white animate-fade-in flex items-center justify-center gap-2"><i class="fas fa-user-tie text-green-300"></i> Koordinator Kelompok</h2>
+                
+                <!-- Messages untuk koordinator -->
+                {% if koordinator_message %}
+                <div class="mt-2 px-4 py-2 bg-green-500/80 text-white rounded-lg shadow">
+                    ✅ {{ koordinator_message }}
+                </div>
+                {% endif %}
+                {% if koordinator_error %}
+                <div class="mt-2 px-4 py-2 bg-red-500/80 text-white rounded-lg shadow">
+                    ❌ {{ koordinator_error }}
+                </div>
+                {% endif %}
+                
                 {% if bisa_edit %}
                 <button onclick="document.getElementById('modal-koordinator').classList.remove('hidden')" class="mt-4 px-4 py-2 bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition">+ Tambah Koordinator Kelompok</button>
                 {% endif %}
                 </div>
                 <div class="overflow-x-auto">
+                    
                     <table class="min-w-full bg-gradient-to-r from-blue-400/60 via-indigo-400/50 to-purple-500/60 bg-opacity-70 rounded-2xl shadow text-center">
                     <thead>
                         <tr class="bg-indigo-900 text-white rounded-t-2xl">
@@ -137,7 +151,15 @@
             <div id="modal-koordinator" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
                 <div class="bg-white rounded-xl p-8 w-full max-w-md relative">
                     <button onclick="document.getElementById('modal-koordinator').classList.add('hidden')" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
-                    <form method="post" class="space-y-4">
+                    
+                    <!-- Loading indicator -->
+                    <div id="loading-koordinator" class="hidden text-center mb-4">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        <p class="mt-2 text-gray-600">Menyimpan data...</p>
+                    </div>
+                    
+                    <!-- Form normal (fallback) -->
+                    <form method="post" class="space-y-4" id="form-koordinator">
                         {% csrf_token %}
                         <div>
                             <label class="block font-semibold mb-1">Nama Kelompok</label>
@@ -149,32 +171,38 @@
                         </div>
                         <button type="submit" name="tambah_koordinator" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Tambah Koordinator</button>
                     </form>
+                    
+                    <!-- Test database button for debugging -->
+                    <button onclick="testDatabase()" class="mt-4 w-full py-2 px-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow hover:bg-red-600 transition">🔧 Test Database Connection</button>
                 </div>
             </div>
             {% endif %}
             <!-- Modal Edit Koordinator Kelompok (jika diperlukan) -->
             {% if bisa_edit and edit_idx is not None %}
-            {% with row=koordinator_kelompok|slice:edit_idx|first %}
-            <div id="modal-koordinator-edit" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                <div class="bg-white rounded-xl p-8 w-full max-w-md relative">
-                    <form method="post" class="space-y-4">
-                        {% csrf_token %}
-                        <button onclick="document.getElementById('modal-koordinator-edit').classList.add('hidden');return false;" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
-                        <div>
-                            <label class="block font-semibold mb-1">Nama Kelompok</label>
-                            <input type="text" name="kelompok_edit" class="w-full px-3 py-2 rounded border border-blue-300" value="{{ row.kelompok }}" required placeholder="Masukkan nama kelompok">
-                        </div>
-                        <div>
-                            <label class="block font-semibold mb-1">Nama Koordinator (satu per baris)</label>
-                            <textarea name="koordinator_edit" rows="3" class="w-full px-3 py-2 rounded border border-blue-300" required placeholder="Masukkan satu nama koordinator per baris">{% for nama in row.koordinator %}{{ nama }}
-{% endfor %}</textarea>
-                        </div>
-                        <input type="hidden" name="edit_koordinator" value="{{ edit_idx }}">
-                        <button type="submit" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Simpan Perubahan</button>
-                    </form>
+            {% for row in koordinator_kelompok %}
+                {% if forloop.counter0|stringformat:"s" == edit_idx %}
+                <div id="modal-koordinator-edit" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-xl p-8 w-full max-w-md relative">
+                        <form method="post" class="space-y-4" id="form-edit-koordinator">
+                            {% csrf_token %}
+                            <button type="button" onclick="closeEditModal()" class="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl">&times;</button>
+                            <h3 class="text-xl font-bold text-center mb-4">Edit Koordinator Kelompok</h3>
+                            <div>
+                                <label class="block font-semibold mb-1">Nama Kelompok</label>
+                                <input type="text" name="kelompok_edit" class="w-full px-3 py-2 rounded border border-blue-300" value="{{ row.kelompok }}" required placeholder="Masukkan nama kelompok">
+                            </div>
+                            <div>
+                                <label class="block font-semibold mb-1">Nama Koordinator (satu per baris)</label>
+                                <textarea name="koordinator_edit" rows="3" class="w-full px-3 py-2 rounded border border-blue-300" required placeholder="Masukkan satu nama koordinator per baris">{% for nama in row.koordinator %}{{ nama }}{% if not forloop.last %}
+{% endif %}{% endfor %}</textarea>
+                            </div>
+                            <input type="hidden" name="edit_koordinator" value="{{ edit_idx }}">
+                            <button type="submit" class="w-full py-2 px-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow hover:bg-purple-600 transition">Simpan Perubahan</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-            {% endwith %}
+                {% endif %}
+            {% endfor %}
             {% endif %}
         </div>
     </div>
@@ -184,5 +212,149 @@
             <a href="{% url 'main:home' %}" class="px-4 py-2 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg shadow hover:bg-blue-600 flex items-center gap-2 text-sm">
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>
+        </div>
+    </div>
 </div>
+
+<script>
+// Function untuk close edit modal
+function closeEditModal() {
+    // Redirect back to page without edit_idx parameter
+    window.location.href = '{% url "panitia:struktur_organisasi" %}';
+}
+
+// Auto-hide messages after 5 seconds
+setTimeout(function() {
+    const messages = document.querySelectorAll('.bg-green-500\\/80, .bg-red-500\\/80');
+    messages.forEach(function(msg) {
+        msg.style.transition = 'opacity 0.5s';
+        msg.style.opacity = '0';
+        setTimeout(function() {
+            msg.remove();
+        }, 500);
+    });
+}, 5000);
+
+// Function untuk test database connection
+function testDatabase() {
+    fetch('{% url "panitia:test_database" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('✅ Database Connection: OK\\n' +
+                  'Koordinator Count: ' + data.koordinator_count + '\\n' +
+                  'Test Create/Delete: ' + (data.test_create_delete ? 'OK' : 'FAILED'));
+        } else {
+            alert('❌ Database Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('❌ Network Error: ' + error);
+    });
+}
+
+// Enhanced form handling dengan AJAX dan fallback
+document.getElementById('form-koordinator').addEventListener('submit', function(e) {
+    const kelompok = this.querySelector('input[name="kelompok"]').value.trim();
+    const koordinator = this.querySelector('textarea[name="koordinator"]').value.trim();
+    
+    if (!kelompok || !koordinator) {
+        e.preventDefault();
+        alert('Kelompok dan koordinator harus diisi!');
+        return false;
+    }
+    
+    // Try AJAX first for better compatibility
+    e.preventDefault();
+    
+    const loadingDiv = document.getElementById('loading-koordinator');
+    const formDiv = this;
+    
+    // Show loading
+    loadingDiv.classList.remove('hidden');
+    formDiv.style.opacity = '0.5';
+    
+    // Prepare form data
+    const formData = new FormData();
+    formData.append('kelompok', kelompok);
+    formData.append('koordinator', koordinator);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    // Try AJAX request
+    fetch('{% url "panitia:tambah_koordinator_ajax" %}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        loadingDiv.classList.add('hidden');
+        formDiv.style.opacity = '1';
+        
+        if (data.success) {
+            // Success - show message and reload page
+            alert('✅ ' + data.message);
+            window.location.reload();
+        } else {
+            // Error - show error message
+            alert('❌ ' + data.error);
+        }
+    })
+    .catch(error => {
+        // AJAX failed - fallback to normal form submission
+        console.log('AJAX failed, falling back to normal form:', error);
+        
+        loadingDiv.classList.add('hidden');
+        formDiv.style.opacity = '1';
+        
+        // Add hidden input to indicate AJAX fallback
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'ajax_fallback';
+        hiddenInput.value = '1';
+        formDiv.appendChild(hiddenInput);
+        
+        // Submit form normally
+        formDiv.submit();
+    });
+});
+
+// Enhanced form handling untuk edit koordinator
+const editForm = document.getElementById('form-edit-koordinator');
+if (editForm) {
+    editForm.addEventListener('submit', function(e) {
+        const kelompok = this.querySelector('input[name="kelompok_edit"]').value.trim();
+        const koordinator = this.querySelector('textarea[name="koordinator_edit"]').value.trim();
+        
+        if (!kelompok || !koordinator) {
+            e.preventDefault();
+            alert('Kelompok dan koordinator harus diisi!');
+            return false;
+        }
+        
+        // Show loading indicator
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Menyimpan...';
+        submitBtn.disabled = true;
+        
+        // Let form submit normally for now (can be enhanced with AJAX later)
+        // Form will submit and page will reload with success/error message
+    });
+}
+
+// Function untuk show/hide debug info after some time  
+setTimeout(function() {
+    const debugInfo = document.querySelector('.bg-black\\/30');
+    if (debugInfo) {
+        debugInfo.style.transition = 'opacity 2s';
+        debugInfo.style.opacity = '0.3';
+    }
+}, 10000); // Hide debug info after 10 seconds
+</script>
 {% endblock %}
