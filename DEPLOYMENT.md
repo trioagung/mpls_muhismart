@@ -2,6 +2,19 @@
 
 Aplikasi Django untuk manajemen MPLS dengan database PostgreSQL untuk penggunaan publik.
 
+## 📱 PERUBAHAN TERBARU (Logo Fix)
+- ✅ Fix logo display: menghilangkan background border kotak abu-abu
+- ✅ Menggunakan Django MEDIA_URL untuk kompatibilitas hosting  
+- ✅ Logo PNG sekarang tampil transparan tanpa forced background
+- ✅ Removed rounded-full classes untuk display persegi/rectangular
+
+## 🚀 Quick Deploy ke PythonAnywhere
+1. Login ke PythonAnywhere console
+2. Navigate ke direktori project: `cd /home/yourusername/mpls.muhismart`
+3. Pull latest changes: `git pull origin main`
+4. Collect static: `python manage.py collectstatic --noinput`
+5. Restart web app di dashboard PythonAnywhere
+
 ## 🚀 Recommended Hosting Platforms untuk Penggunaan Publik
 
 ### Option 1: Railway (RECOMMENDED - PostgreSQL Gratis)
