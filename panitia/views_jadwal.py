@@ -59,7 +59,12 @@ def jadwal(request):
                         request.session['jadwal2'] = jadwal
                     return redirect('panitia:jadwal')
 
-    return render(request, 'panitia/jadwal.html', {'jadwal1': jadwal1, 'jadwal2': jadwal2})
+    return render(request, 'panitia/jadwal.html', {
+        'jadwal1': jadwal1, 
+        'jadwal2': jadwal2,
+        'bisa_lihat': bisa_lihat,
+        'bisa_edit': bisa_edit,
+    })
 
 
 @login_required
