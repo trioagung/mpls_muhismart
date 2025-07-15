@@ -5,6 +5,12 @@ from .helpers import get_akses  # Pastikan untuk mengimpor fungsi get_akses
 @login_required
 def jadwal(request):
     bisa_lihat, bisa_edit = get_akses(request.user, 'Jadwal Kegiatan')
+    
+    # Debug permission
+    print(f"DEBUG - User: {request.user.username}")
+    print(f"DEBUG - Is superuser: {request.user.is_superuser}")
+    print(f"DEBUG - Permission: bisa_lihat={bisa_lihat}, bisa_edit={bisa_edit}")
+    
     if not bisa_lihat:
         return render(request, 'panitia/no_access.html', {'menu': 'Jadwal'})
     if request.method == 'POST' and not bisa_edit:
