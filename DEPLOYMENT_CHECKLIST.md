@@ -20,7 +20,18 @@ git clone https://github.com/trioagung/mpls_muhismart.git
 cd mpls_muhismart
 ```
 
-### Step 2: Run Automated Deployment
+### Step 2A: Install Dependencies (if needed)
+```bash
+pip install -r requirements.txt
+```
+
+### Step 2B: Run Quick Setup (Recommended)
+```bash
+chmod +x quick_setup.sh
+./quick_setup.sh
+```
+
+**OR** use full deployment script:
 ```bash
 chmod +x pythonanywhere_deploy.sh
 ./pythonanywhere_deploy.sh

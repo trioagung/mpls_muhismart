@@ -33,12 +33,19 @@ print_error() {
 
 # Step 1: Install requirements
 print_info "Installing Python requirements..."
-pip3.10 install --user -r requirements.txt
+# Check if we're in a virtual environment
+if [ -n "$VIRTUAL_ENV" ]; then
+    print_info "Virtual environment detected: $VIRTUAL_ENV"
+    pip install -r requirements.txt
+else
+    # Fallback to user install if not in virtual env
+    pip3.10 install --user -r requirements.txt
+fi
+
 if [ $? -eq 0 ]; then
     print_status "Requirements installed successfully"
 else
-    print_error "Failed to install requirements"
-    exit 1
+    print_warning "Requirements installation had issues, continuing..."
 fi
 
 # Step 2: Setup directories
@@ -51,7 +58,7 @@ print_status "Directories created"
 
 # Step 3: Collect static files
 print_info "Collecting static files..."
-python3.10 manage.py collectstatic --noinput
+python manage.py collectstatic --noinput
 if [ $? -eq 0 ]; then
     print_status "Static files collected"
 else
@@ -60,8 +67,8 @@ fi
 
 # Step 4: Database migrations
 print_info "Applying database migrations..."
-python3.10 manage.py makemigrations
-python3.10 manage.py migrate
+python manage.py makemigrations
+python manage.py migrate
 if [ $? -eq 0 ]; then
     print_status "Database migrations completed"
 else
@@ -71,7 +78,7 @@ fi
 
 # Step 5: Create superuser
 print_info "Creating superuser account..."
-python3.10 manage.py shell << 'EOF'
+python manage.py shell << 'EOF'
 import os
 from django.contrib.auth.models import User
 
@@ -95,7 +102,7 @@ print_status "Superuser setup completed"
 print_info "Setting up logo placeholder..."
 if [ ! -f "media/logo.png" ]; then
     # Create a simple placeholder using Python
-    python3.10 << 'EOF'
+    python << 'EOF'
 from PIL import Image, ImageDraw, ImageFont
 import os
 
@@ -148,7 +155,7 @@ print_status "Permissions set correctly"
 
 # Step 8: Test basic functionality
 print_info "Testing Django setup..."
-python3.10 manage.py check
+python manage.py check
 if [ $? -eq 0 ]; then
     print_status "Django check passed"
 else
